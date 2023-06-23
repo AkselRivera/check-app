@@ -1,17 +1,16 @@
-import gopher from '../assets/gopher-data.svg'
+import CustomNav from '../components/Navbar'
 import { Bill } from './Bill'
-
+import { Families } from './Families'
 
 export const MainPage = () => {
   return (
-    <div className="flex-1 flex flex-wrap  border ">
-    <Bill />
-    <Bill />
-    <img src={gopher} className="logo" alt="Vite logo" />
-    <img src={gopher} className="logo" alt="Vite logo" />
-    <img src={gopher} className="logo" alt="Vite logo" />
-    <img src={gopher} className="logo" alt="Vite logo" />
-        
+    <div className="flex flex-col w-[100vw] h-screen">
+      <CustomNav />
+
+      <div className="max-h-[90vh] flex flex-row md:flex-col flex-wrap ">
+        <Bill />
+        <Families />
+      </div>
     </div>
   )
 }

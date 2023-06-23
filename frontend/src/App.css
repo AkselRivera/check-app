@@ -11,8 +11,7 @@
   transition: filter 300ms;
 }
 .react{
-  padding: 1.5em;
-  height: 5em;
+  height: 1.5em;
 }
 .logo:hover {
   filter: drop-shadow(0 0 1em #7c9696);
