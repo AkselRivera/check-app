@@ -1,15 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-
-// type setModalProps = React.Dispatch<
-//   React.SetStateAction<{ setModalData: setModalData }>
-// >
-
-type Props = {
-  title: string
-  isOpen: boolean
-  children: JSX.Element
-}
+import { Props } from '../modal/modal.types'
 
 export default function Modal(props: Props) {
   const { children } = props
@@ -17,7 +8,7 @@ export default function Modal(props: Props) {
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-30" onClose={() => {}}>
+        <Dialog as="div" className="relative z-50" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -27,7 +18,7 @@ export default function Modal(props: Props) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
+            <div className="fixed inset-0 bg-black bg-opacity-40" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
@@ -41,7 +32,7 @@ export default function Modal(props: Props) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-lg md:max-w-4xl transform overflow-hidden rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 p-5 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-lg md:max-w-4xl transform overflow-hidden rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 p-5 text-left align-middle shadow-2xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-white py-2"
@@ -49,7 +40,6 @@ export default function Modal(props: Props) {
                     {title}
                   </Dialog.Title>
                   {children}
-                  {/* <Element setModal={props.setModalProps} disabled={disabled} /> */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

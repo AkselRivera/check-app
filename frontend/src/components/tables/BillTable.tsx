@@ -1,6 +1,8 @@
 import { Button, Card, Checkbox, Typography } from '@material-tailwind/react'
 import { useState } from 'react'
 import Modal from '../share/Modal'
+import { AddForm } from '../modal/form/AddForm'
+import { openModal } from '../../utils/modal'
 
 interface ButtonHeader {
   title: string
@@ -78,21 +80,17 @@ export default function BillTable() {
     isOpen: false,
   })
 
-  function openModal() {
-    setProps((state) => ({ ...state, isOpen: true }))
-  }
-
   function addForm() {
-    openModal()
+    openModal({ setProps })
     setProps((state) => ({
       ...state,
-      title: 'Add Simulation',
+      title: 'Add an Order',
       isOpen: true,
       disabled: false,
     }))
   }
   return (
-    <Card className="overflow-auto h-full w-full rounded-md max-h-[80%] ">
+    <Card className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
       <table className="w-full min-w-max table-auto text-center bg-gradient-to-b from-gray-800 to-gray-900 text-blue-gray-50">
         <thead>
           <tr>
@@ -117,7 +115,11 @@ export default function BillTable() {
                     key={new Date().toISOString()}
                     className="border-b border-gray-800 bg-gray-900 p-4 sticky top-0 z-10"
                   >
-                    <Button variant="outlined" onClick={addForm}>
+                    <Button
+                      variant="outlined"
+                      onClick={addForm}
+                      className="focus:ring-transparent focus-visible:ring-0 "
+                    >
                       {head.title}
                     </Button>
                   </th>
@@ -167,25 +169,8 @@ export default function BillTable() {
       </table>
 
       <Modal title={props.title} isOpen={props.isOpen}>
-        <Dummy setProps={setProps} />
+        <AddForm setProps={setProps} />
       </Modal>
     </Card>
   )
-}
-
-type DummyProps = {
-  setProps: React.Dispatch<
-    React.SetStateAction<{
-      title: string
-      isOpen: boolean
-    }>
-  >
-}
-
-export const Dummy = ({ setProps }: DummyProps) => {
-  const closeModal = () => {
-    setProps((prev) => ({ ...prev, isOpen: false }))
-  }
-
-  return <div onClick={closeModal}>Dummy</div>
 }
