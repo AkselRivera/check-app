@@ -29,7 +29,7 @@ export const AddForm = ({ setProps }: ModalProps) => {
   return (
     <div className="max-h-[70vh] ">
       <form
-        className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto"
+        className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto px-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         {(errors.product_name ||
@@ -152,7 +152,7 @@ export const AddForm = ({ setProps }: ModalProps) => {
             className="focus:ring-transparent outline-none"
             color="green"
           >
-            Register
+            Save
           </Button>
         </div>
       </form>
