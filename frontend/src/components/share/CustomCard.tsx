@@ -5,12 +5,25 @@ import {
   Typography,
   Button,
   Badge,
+  CardHeader,
+  IconButton,
 } from '@material-tailwind/react'
+
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function CustomCard() {
   return (
-    <Card className="mt-6 w-full md:w-72 bg-gradient-to-b from-gray-800 to-gray-900  text-blue-gray-50">
-      <CardBody className="">
+    <Card className="mt-4 w-full md:w-72 bg-gradient-to-b from-gray-800 to-gray-900  text-blue-gray-50">
+      <CardBody className="py-3">
+        <div className="flex justify-end">
+          <IconButton
+            color="red"
+            className=" rounded-full h-5 w-5"
+            // onClick={addForm}
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </IconButton>
+        </div>
         <Typography variant="h5" className="mb-2">
           UI/UX Review Check
         </Typography>
