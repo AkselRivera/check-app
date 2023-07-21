@@ -3,29 +3,51 @@ import {
   IconButton,
   Tooltip,
   Typography,
-} from '@material-tailwind/react'
-import gopherData from '../assets/gopher-data.svg'
-import CustomCard from '../components/share/CustomCard'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import { openModal } from '../utils/modal'
-import { useState } from 'react'
-import Modal from '../components/share/Modal'
-import { FamilyForm } from '../components/modal/form/FamilyForm'
+} from "@material-tailwind/react";
+import { FamilyForm } from "../components/modal/form/FamilyForm";
+import { openModal } from "../utils/modal";
+import { PlusIcon } from "@heroicons/react/24/solid";
+import { TipForm } from "../components/modal/form/TipForm";
+import { useState } from "react";
+
+import CustomCard from "../components/share/CustomCard";
+import gopherData from "../assets/gopher-data.svg";
+import Modal from "../components/share/Modal";
+
+const FORM_TYPES = {
+  TIP_FORM: "TIP_FORM",
+  FAMILY_FORM: "FAMILY_FORM",
+} as const;
 
 export const Families = () => {
   const [props, setProps] = useState({
-    title: '',
+    title: "",
     isOpen: false,
-  })
+  });
+
+  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
 
   function addForm() {
-    openModal({ setProps })
     setProps((state) => ({
       ...state,
-      title: 'Add a new Family',
+      title: "Add a new Family",
       isOpen: true,
       disabled: false,
-    }))
+    }));
+    openModal({ setProps });
+    setFormType(FORM_TYPES.FAMILY_FORM);
+  }
+
+  function tipForm() {
+    // setElemnt(TipForm )
+    setProps((state) => ({
+      ...state,
+      title: "Tip details",
+      isOpen: true,
+      disabled: false,
+    }));
+    openModal({ setProps });
+    setFormType(FORM_TYPES.TIP_FORM);
   }
 
   return (
@@ -43,7 +65,11 @@ export const Families = () => {
           <Typography className="text-xs">
             Currently you have selected 10% tip
           </Typography>
-          <Button variant="text" className="text-xs p-0 capitalize">
+          <Button
+            variant="text"
+            className="text-xs p-0 capitalize"
+            onClick={tipForm}
+          >
             Change tip percentage
           </Button>
         </div>
@@ -56,8 +82,12 @@ export const Families = () => {
         <CustomCard />
       </div>
       <Modal title={props.title} isOpen={props.isOpen}>
-        <FamilyForm setProps={setProps} />
+        {formType === FORM_TYPES.TIP_FORM ? (
+          <TipForm setProps={setProps} />
+        ) : (
+          <FamilyForm setProps={setProps} />
+        )}
       </Modal>
     </div>
-  )
-}
+  );
+};

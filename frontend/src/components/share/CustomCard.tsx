@@ -5,13 +5,53 @@ import {
   Typography,
   Button,
   Badge,
-  CardHeader,
   IconButton,
-} from '@material-tailwind/react'
+} from "@material-tailwind/react";
 
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import Modal from "./Modal";
+import { TipForm } from "../modal/form/TipForm";
+import { FamilyForm } from "../modal/form/FamilyForm";
+import { openModal } from "../../utils/modal";
+import { FamilyDetails } from "../modal/details/FamilyDetails";
+import { FamilyDelete } from "../modal/delete/FamilyDelete";
+
+const FORM_TYPES = {
+  TIP_FORM: "TIP_FORM",
+  FAMILY_FORM: "FAMILY_FORM",
+} as const;
 
 export default function CustomCard() {
+  const [props, setProps] = useState({
+    title: "",
+    isOpen: false,
+  });
+
+  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
+
+  function addForm() {
+    setProps((state) => ({
+      ...state,
+      title: "Add a new Family",
+      isOpen: true,
+      disabled: false,
+    }));
+    openModal({ setProps });
+    setFormType(FORM_TYPES.FAMILY_FORM);
+  }
+
+  function tipForm() {
+    setProps((state) => ({
+      ...state,
+      title: "Tip details",
+      isOpen: true,
+      disabled: false,
+    }));
+    openModal({ setProps });
+    setFormType(FORM_TYPES.TIP_FORM);
+  }
+
   return (
     <Card className="mt-4 w-full md:w-72 bg-gradient-to-b from-gray-800 to-gray-900  text-blue-gray-50">
       <CardBody className="py-3">
@@ -19,7 +59,7 @@ export default function CustomCard() {
           <IconButton
             color="red"
             className=" rounded-full h-5 w-5"
-            // onClick={addForm}
+            onClick={tipForm}
           >
             <XMarkIcon className="h-4 w-4" />
           </IconButton>
@@ -38,9 +78,16 @@ export default function CustomCard() {
       </CardBody>
       <CardFooter className="pt-0 text-center">
         <Badge content="5" withBorder>
-          <Button>Products</Button>
+          <Button onClick={addForm}>Products</Button>
         </Badge>
       </CardFooter>
+      <Modal title={props.title} isOpen={props.isOpen}>
+        {formType === FORM_TYPES.TIP_FORM ? (
+          <FamilyDelete setProps={setProps} />
+        ) : (
+          <FamilyDetails setProps={setProps} />
+        )}
+      </Modal>
     </Card>
-  )
+  );
 }

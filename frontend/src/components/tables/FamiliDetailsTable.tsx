@@ -73,9 +73,15 @@ const TABLE_ROWS = [
     job: 'Manager',
     date: '04/10/21',
   },
+  {
+    check: true,
+    name: 'LAST',
+    job: 'XXXXXXX',
+    date: '04/10/21',
+  },
 ]
 
-export default function BillTable() {
+export default function FamilyDetailsTable() {
   const [props, setProps] = useState({
     title: '',
     isOpen: false,
@@ -108,7 +114,7 @@ export default function BillTable() {
   }
 
   return (
-    <Card className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
+    <Card className="overflow-auto h-full w-full rounded-md max-h-[60vh] bg-custom">
       <table className="w-full min-w-max table-auto text-center bg-gradient-to-b from-gray-800 to-gray-900 text-blue-gray-50">
         <thead>
           <tr>
