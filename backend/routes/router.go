@@ -22,7 +22,13 @@ type Family struct {
 	Total float64 `json:"total" xml:"total" form:"total"`
 }
 
-var Families []Family
+var Families = []Family{
+	{
+		Id:    "default",
+		Name:  "Default",
+		Total: 0,
+	},
+}
 var listProducts []Product
 
 func TestFunc(c *fiber.Ctx) error {
