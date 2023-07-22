@@ -1,4 +1,4 @@
-import { createElement, useState } from 'react'
+import { createElement, useState } from "react";
 import {
   Avatar,
   Button,
@@ -7,7 +7,7 @@ import {
   MenuItem,
   MenuList,
   Typography,
-} from '@material-tailwind/react'
+} from "@material-tailwind/react";
 
 import {
   UserCircleIcon,
@@ -16,34 +16,34 @@ import {
   InboxArrowDownIcon,
   LifebuoyIcon,
   PowerIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 
 const profileMenuItems = [
   {
-    label: 'My Profile',
+    label: "My Profile",
     icon: UserCircleIcon,
   },
   {
-    label: 'Edit Profile',
+    label: "Edit Profile",
     icon: Cog6ToothIcon,
   },
   {
-    label: 'Inbox',
+    label: "Inbox",
     icon: InboxArrowDownIcon,
   },
   {
-    label: 'Help',
+    label: "Help",
     icon: LifebuoyIcon,
   },
   {
-    label: 'Sign Out',
+    label: "Sign Out",
     icon: PowerIcon,
   },
-]
+];
 
 export default function ProfileMenu() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const closeMenu = () => setIsMenuOpen(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -63,40 +63,42 @@ export default function ProfileMenu() {
           <ChevronDownIcon
             strokeWidth={2.5}
             className={`h-3 w-3 transition-transform ${
-              isMenuOpen ? 'rotate-180' : ''
+              isMenuOpen ? "rotate-180" : ""
             }`}
           />
         </Button>
       </MenuHandler>
-      <MenuList className="p-1">
+      <MenuList className="p-1 bg-gray-800 border-0 shadow-xl">
         {profileMenuItems.map(({ label, icon }, key) => {
-          const isLastItem = key === profileMenuItems.length - 1
+          const isLastItem = key === profileMenuItems.length - 1;
           return (
             <MenuItem
               key={label}
               onClick={closeMenu}
-              className={`flex items-center gap-2 rounded ${
+              className={`flex items-center gap-2 rounded   ${
                 isLastItem
-                  ? 'hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10'
-                  : ''
+                  ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
+                  : "hover:bg-blue-gray-600 focus:bg-blue-gray-600 active:bg-blue-gray-600 "
               }`}
             >
               {createElement(icon, {
-                className: `h-4 w-4 ${isLastItem ? 'text-red-500' : ''}`,
+                className: `h-4 w-4 ${
+                  isLastItem ? "text-red-500" : " text-white opacity-70"
+                }`,
                 strokeWidth: 2,
               })}
               <Typography
                 as="span"
                 variant="small"
-                className="font-normal"
-                color={isLastItem ? 'red' : 'inherit'}
+                className="font-normal opacity-80"
+                color={isLastItem ? "red" : "white"}
               >
                 {label}
               </Typography>
             </MenuItem>
-          )
+          );
         })}
       </MenuList>
     </Menu>
-  )
+  );
 }

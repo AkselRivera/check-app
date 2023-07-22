@@ -18,5 +18,14 @@ func main() {
 	api := app.Group("/api/v1")
 	api.Get("/check", routes.GetCheck)
 
+	api.Get("/product", routes.GetCheck)
+	api.Post("/product", routes.AddProduct)
+	api.Patch("/product/:id", routes.UpdateProduct)
+	api.Delete("/product/:id", routes.DeleteProduct)
+
+	api.Post("/family", routes.NewFamily)
+	api.Get("/families", routes.GetFamilies)
+	api.Delete("/family/:id", routes.GetFamilies)
+
 	app.Listen(":8000")
 }
