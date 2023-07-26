@@ -9,7 +9,7 @@ type Inputs = {
   product_name: string;
   quantity: Number;
   price: Number;
-  family: string;
+  family_id: string;
   total: Number;
 };
 
@@ -47,7 +47,7 @@ export const AddForm = ({ setProps }: ModalProps) => {
         {(errors.product_name ||
           errors.quantity ||
           errors.price ||
-          errors.family) && (
+          errors.family_id) && (
           <div className="w-full text-center p-2 m-3 rounded bg-red-500">
             <p className="text-white font-semibold text-sm tracking-wider">
               {errors.product_name?.message}
@@ -59,7 +59,7 @@ export const AddForm = ({ setProps }: ModalProps) => {
               {errors.price?.message}
             </p>
             <p className="text-white font-semibold text-sm tracking-wider">
-              {errors.family?.message}
+              {errors.family_id?.message}
             </p>
           </div>
         )}
@@ -82,13 +82,13 @@ export const AddForm = ({ setProps }: ModalProps) => {
         />
 
         <Select
-          {...register("family", {
+          {...register("family_id", {
             required: "Family is required",
             setValueAs: () => value,
           })}
           label="Family"
           value={value}
-          error={!!errors.family}
+          error={!!errors.family_id}
           onChange={handleChange}
           variant="standard"
           labelProps={{
