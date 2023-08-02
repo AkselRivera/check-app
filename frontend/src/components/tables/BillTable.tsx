@@ -1,9 +1,13 @@
-import { AddForm } from "../modal/form/ProductForm";
+import { ProductForm } from "../modal/form/ProductForm";
 import { Button, Card, Checkbox, Typography } from "@material-tailwind/react";
 import { openModal } from "../../utils/modal";
 import { useState } from "react";
 
 import Modal from "../share/Modal";
+import { useQuery } from "@tanstack/react-query";
+import { getProducts } from "../../api/products/getProducts";
+import { DefaultColumn } from "../share/table/DefaultColumn";
+import { App_QueryCache } from "../../constants/QueryCache";
 
 interface ButtonHeader {
   title: string;
@@ -18,67 +22,15 @@ const TABLE_HEAD = [
   { title: "Add" },
 ];
 
-const TABLE_ROWS = [
-  {
-    check: true,
-    name: "John Michael",
-    job: "Manager",
-    date: "23/04/18",
-  },
-  {
-    check: true,
-    name: "Alexa Liras",
-    job: "Developer",
-    date: "23/04/18",
-  },
-  {
-    check: true,
-    name: "Laurent Perrier",
-    job: "Executive",
-    date: "19/09/17",
-  },
-  {
-    check: true,
-    name: "Michael Levi",
-    job: "Developer",
-    date: "24/12/08",
-  },
-  {
-    check: true,
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-  {
-    check: true,
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-  {
-    check: true,
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-  {
-    check: true,
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-  {
-    check: true,
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-];
-
 export default function BillTable() {
   const [props, setProps] = useState({
     title: "",
     isOpen: false,
+  });
+
+  const { data } = useQuery({
+    queryKey: [App_QueryCache.PRODUCT],
+    queryFn: getProducts,
   });
 
   function addForm() {
@@ -144,48 +96,52 @@ export default function BillTable() {
           </tr>
         </thead>
         <tbody>
-          {TABLE_ROWS.map((row, index) => {
-            const isLast = index === TABLE_ROWS.length - 1;
-            const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-            const { check, name, job, date } = row;
-            return (
-              <tr key={name}>
-                <td className={classes}>
-                  <Checkbox defaultChecked={check} />
-                </td>
-                <td className={classes}>
-                  <Typography variant="small" className="font-normal">
-                    {name}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography variant="small" className="font-normal">
-                    Familia
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography variant="small" className="font-normal">
-                    {job}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography variant="small" className="font-normal">
-                    {date}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Button onClick={() => editForm(row)} variant="text">
-                    Edit
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
+          {!!data?.data ? (
+            data?.data.map((row: any, index: number) => {
+              const isLast = index === data?.data.length - 1;
+              const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
+              const { check, name, family_id, quantity, total } = row;
+              return (
+                <tr key={name}>
+                  <td className={classes}>
+                    <Checkbox defaultChecked={check} />
+                  </td>
+                  <td className={classes}>
+                    <Typography variant="small" className="font-normal">
+                      {name}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography variant="small" className="font-normal">
+                      {family_id}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography variant="small" className="font-normal">
+                      {quantity}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography variant="small" className="font-normal">
+                      $ {total}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Button onClick={() => editForm(row)} variant="text">
+                      Edit
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <DefaultColumn cols={6} />
+          )}
         </tbody>
       </table>
 
       <Modal title={props.title} isOpen={props.isOpen}>
-        <AddForm setProps={setProps} />
+        <ProductForm setProps={setProps} />
       </Modal>
     </Card>
   );

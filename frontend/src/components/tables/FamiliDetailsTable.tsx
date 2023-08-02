@@ -1,4 +1,4 @@
-import { AddForm } from "../modal/form/ProductForm";
+import { ProductForm } from "../modal/form/ProductForm";
 import { Button, Card, Checkbox, Typography } from "@material-tailwind/react";
 import { openModal } from "../../utils/modal";
 import { useState } from "react";
@@ -191,7 +191,7 @@ export default function FamilyDetailsTable() {
       </table>
 
       <Modal title={props.title} isOpen={props.isOpen}>
-        <AddForm setProps={setProps} />
+        <ProductForm setProps={setProps} />
       </Modal>
     </Card>
   );

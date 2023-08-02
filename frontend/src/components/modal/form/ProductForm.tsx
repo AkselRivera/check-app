@@ -1,32 +1,69 @@
 import { Button, Input, Option, Select } from "@material-tailwind/react";
 import { ModalProps } from "../modal.types";
 import { closeModal } from "../../../utils/modal";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { postProduct } from "../../../api/products/postProducts";
+import { App_QueryCache } from "../../../constants/QueryCache";
+import { getFamilies } from "../../../api/family/getFamily";
+import { Product } from "../../../types/types";
 
 type Inputs = {
-  product_name: string;
-  quantity: Number;
-  price: Number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
   family_id: string;
-  total: Number;
+  total: number;
 };
 
-export const AddForm = ({ setProps }: ModalProps) => {
+export const ProductForm = ({ setProps }: ModalProps) => {
+  const [disable, setDisable] = useState(false);
   const {
+    control,
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  } = useForm<Inputs>({
+    defaultValues: {
+      family_id: "default",
+    },
+  });
 
-  const watchQuantity: Number = watch("quantity");
-  const watchPrice: Number = watch("price");
+  const watchQuantity: number = watch("quantity");
+  const watchPrice: number = watch("unitPrice");
 
-  const [value, setValue] = useState("");
   const [total, setTotal] = useState(0);
+
+  const { data } = useQuery({
+    queryKey: [App_QueryCache.FAMILY_SHORT],
+    queryFn: getFamilies,
+  });
+
+  const postMutation = useMutation({
+    mutationFn: (data: Inputs) => postProduct(data),
+  });
+
+  const client = useQueryClient();
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setDisable(true);
+    postMutation.mutate(
+      { ...data, total },
+      {
+        onSuccess: () => {
+          setDisable(false);
+          client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
+          client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
+          client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
+          client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
+          closeModal({ setProps });
+        },
+      }
+    );
+  };
 
   useEffect(() => {
     if (!!watchPrice && !!watchQuantity) {
@@ -34,44 +71,40 @@ export const AddForm = ({ setProps }: ModalProps) => {
     }
   }, [watchQuantity, watchPrice]);
 
-  function handleChange(value: any) {
-    setValue(value);
-  }
-
   return (
-    <div className="max-h-[70vh] ">
+    <div className=" ">
       <form
-        className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto px-4"
+        className="mb-4 flex flex-wrap py-4 -mx-2 w-full max-h-[75vh] justify-center overflow-auto px-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        {(errors.product_name ||
+        {(errors.name ||
           errors.quantity ||
-          errors.price ||
+          errors.unitPrice ||
           errors.family_id) && (
           <div className="w-full text-center p-2 m-3 rounded bg-red-500">
             <p className="text-white font-semibold text-sm tracking-wider">
-              {errors.product_name?.message}
+              {errors.name?.message}
             </p>
             <p className="text-white font-semibold text-sm tracking-wider">
               {errors.quantity?.message}
             </p>
             <p className="text-white font-semibold text-sm tracking-wider">
-              {errors.price?.message}
+              {errors.unitPrice?.message}
             </p>
-            <p className="text-white font-semibold text-sm tracking-wider">
+            <p className="text-white font-semibold text-sm tracking-wider ">
               {errors.family_id?.message}
             </p>
           </div>
         )}
         <Input
-          {...register("product_name", {
+          {...register("name", {
             required: "Product name is required",
           })}
           autoComplete="off"
           variant="standard"
           label="Product name"
           color="white"
-          error={!!errors.product_name}
+          error={!!errors.name}
           labelProps={{
             className: " text-base text-gray-400",
           }}
@@ -81,40 +114,47 @@ export const AddForm = ({ setProps }: ModalProps) => {
           className="text-gray-50 bg-transparent"
         />
 
-        <Select
-          {...register("family_id", {
-            required: "Family is required",
-            setValueAs: () => value,
-          })}
-          label="Family"
-          value={value}
-          error={!!errors.family_id}
-          onChange={handleChange}
-          variant="standard"
-          labelProps={{
-            className: " text-base text-gray-400",
-          }}
-          containerProps={{
-            className: " w-full  pt-2 mb-6 ",
-          }}
-          className="text-gray-50 bg-transparent"
-          menuProps={{
-            className: "text-gray-50 bg-custom border-0 ",
-          }}
-        >
-          <Option className=" " value="123">
-            Material Tailwind HTML
-          </Option>
-          <Option>Material Tailwind React</Option>
-          <Option>Material Tailwind Vue</Option>
-          <Option>Material Tailwind Angular</Option>
-          <Option>Material Tailwind Svelte</Option>
-        </Select>
+        <Controller
+          rules={{ required: "Family is required" }}
+          name="family_id"
+          control={control}
+          render={({ field: { value, onChange, ref } }) => (
+            <Select
+              value={value}
+              ref={ref}
+              onChange={onChange as any}
+              label="Family"
+              error={!!errors.family_id}
+              variant="standard"
+              labelProps={{
+                className: " text-base text-gray-400",
+              }}
+              containerProps={{
+                className: " w-full pt-2 mb-6 ",
+              }}
+              className="text-gray-50 bg-transparent"
+              menuProps={{
+                className: "text-gray-50 h-28 bg-custom border-0 ",
+              }}
+            >
+              {!data?.data ? (
+                <Option disabled>No data</Option>
+              ) : (
+                data?.data?.map((item: Product) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))
+              )}
+            </Select>
+          )}
+        />
 
         <Input
           {...register("quantity", {
-            required: "Quantity must be greater than one",
+            required: "Quantity must be greater than 1",
             min: 1,
+            valueAsNumber: true,
           })}
           variant="standard"
           label="Quantity"
@@ -130,17 +170,17 @@ export const AddForm = ({ setProps }: ModalProps) => {
           className="text-gray-50 bg-transparent"
         />
         <Input
-          {...register("price", {
+          {...register("unitPrice", {
             required: "Price must be greater than $ 0.0",
             min: 0.1,
-            pattern: /\d+/,
+            valueAsNumber: true,
           })}
           variant="standard"
           label="Unit price"
           type="number"
           step="any"
           color="white"
-          error={!!errors.price}
+          error={!!errors.unitPrice}
           labelProps={{
             className: "md:px-2 text-base text-gray-400",
           }}
@@ -159,14 +199,16 @@ export const AddForm = ({ setProps }: ModalProps) => {
             onClick={() => closeModal({ setProps })}
             variant="outlined"
             color="red"
-            className="focus:ring-transparent outline-none "
+            className="focus:ring-transparent outline-none disabled:cursor-not-allowed"
+            disabled={disable}
           >
             Close
           </Button>
           <Button
             type="submit"
-            className="focus:ring-transparent outline-none"
+            className="focus:ring-transparent outline-none disabled:cursor-not-allowed"
             color="green"
+            disabled={disable}
           >
             Save
           </Button>

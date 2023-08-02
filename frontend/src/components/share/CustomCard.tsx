@@ -11,8 +11,6 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import Modal from "./Modal";
-import { TipForm } from "../modal/form/TipForm";
-import { FamilyForm } from "../modal/form/FamilyForm";
 import { openModal } from "../../utils/modal";
 import { FamilyDetails } from "../modal/details/FamilyDetails";
 import { FamilyDelete } from "../modal/delete/FamilyDelete";
@@ -22,8 +20,9 @@ const FORM_TYPES = {
   FAMILY_FORM: "FAMILY_FORM",
 } as const;
 
-export default function CustomCard() {
-  const [props, setProps] = useState({
+export default function CustomCard(props: any) {
+  const { id, name, total, products_count } = props;
+  const [customProps, setProps] = useState({
     title: "",
     isOpen: false,
   });
@@ -65,23 +64,23 @@ export default function CustomCard() {
           </IconButton>
         </div>
         <Typography variant="h5" className="mb-2">
-          UI/UX Review Check
+          {name}
         </Typography>
         <Typography className="font-semibold">Food intake:</Typography>
         <Typography className="text-center" color="blue">
-          $ 0.0
+          $ {total}
         </Typography>
         <Typography className="font-semibold "> Total with tip:</Typography>
         <Typography className="text-center" color="green">
-          $ 0.0
+          $ {total * 1.1}
         </Typography>
       </CardBody>
       <CardFooter className="pt-0 text-center">
-        <Badge content="5" withBorder>
+        <Badge content={products_count}>
           <Button onClick={addForm}>Products</Button>
         </Badge>
       </CardFooter>
-      <Modal title={props.title} isOpen={props.isOpen}>
+      <Modal title={customProps.title} isOpen={customProps.isOpen}>
         {formType === FORM_TYPES.TIP_FORM ? (
           <FamilyDelete setProps={setProps} />
         ) : (

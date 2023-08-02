@@ -13,6 +13,10 @@ import { useState } from "react";
 import CustomCard from "../components/share/CustomCard";
 import gopherData from "../assets/gopher-data.svg";
 import Modal from "../components/share/Modal";
+import { getFamilies } from "../api/family/getFamily";
+
+import { useQuery } from "@tanstack/react-query";
+import { App_QueryCache } from "../constants/QueryCache";
 
 const FORM_TYPES = {
   TIP_FORM: "TIP_FORM",
@@ -23,6 +27,11 @@ export const Families = () => {
   const [props, setProps] = useState({
     title: "",
     isOpen: false,
+  });
+
+  const { data } = useQuery({
+    queryKey: [App_QueryCache.FAMILY],
+    queryFn: getFamilies,
   });
 
   const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
@@ -77,9 +86,15 @@ export const Families = () => {
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center overflow-auto  px-2 ">
-        <CustomCard />
-        <CustomCard />
-        <CustomCard />
+        {data?.data?.map((item: any) => (
+          <CustomCard
+            key={item.id}
+            id={item.id}
+            name={item.name}
+            total={item.total}
+            products_count={item.products_count}
+          />
+        ))}
       </div>
       <Modal title={props.title} isOpen={props.isOpen}>
         {formType === FORM_TYPES.TIP_FORM ? (

@@ -1,19 +1,40 @@
-import { Button, Input } from '@material-tailwind/react'
-import { ModalProps } from '../modal.types'
-import { closeModal } from '../../../utils/modal'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { Button, Input } from "@material-tailwind/react";
+import { ModalProps } from "../modal.types";
+import { closeModal } from "../../../utils/modal";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postFamily } from "../../../api/family/postFamily";
+import { App_QueryCache } from "../../../constants/QueryCache";
 
 type Inputs = {
-  name: string
-}
+  name: string;
+};
 
 export const FamilyForm = ({ setProps }: ModalProps) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<Inputs>()
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
+  } = useForm<Inputs>();
+
+  const postMutation = useMutation({
+    mutationFn: (data: Inputs) => postFamily(data),
+  });
+
+  const client = useQueryClient();
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    console.log("Submitado", data);
+    postMutation.mutate(data, {
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
+        client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
+        reset();
+        closeModal({ setProps });
+      },
+    });
+  };
 
   return (
     <div className="max-h-[70vh] ">
@@ -29,8 +50,8 @@ export const FamilyForm = ({ setProps }: ModalProps) => {
           </div>
         )}
         <Input
-          {...register('name', {
-            required: 'Family name is required',
+          {...register("name", {
+            required: "Family name is required",
           })}
           autoComplete="off"
           variant="standard"
@@ -38,10 +59,10 @@ export const FamilyForm = ({ setProps }: ModalProps) => {
           color="white"
           error={!!errors.name}
           labelProps={{
-            className: ' text-base text-gray-400',
+            className: " text-base text-gray-400",
           }}
           containerProps={{
-            className: ' w-full  pt-2 mb-6 ',
+            className: " w-full  pt-2 mb-6 ",
           }}
           className="text-gray-50 bg-transparent"
         />
@@ -65,5 +86,5 @@ export const FamilyForm = ({ setProps }: ModalProps) => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};

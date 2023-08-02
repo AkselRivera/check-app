@@ -17,12 +17,19 @@ type Product struct {
 }
 
 type Family struct {
-	Id    string  `json:"id" xml:"id" form:"id"`
-	Name  string  `json:"name" xml:"name" form:"name"`
-	Total float64 `json:"total" xml:"total" form:"total"`
+	Id             string  `json:"id" xml:"id" form:"id"`
+	Name           string  `json:"name" xml:"name" form:"name"`
+	Total          float64 `json:"total" xml:"total" form:"total"`
+	Products_count int     `json:"products_count" xml:"products_count" form:"products_count"`
 }
 
-var Families []Family
+var Families = []Family{
+	{
+		Id:    "default",
+		Name:  "Default",
+		Total: 0,
+	},
+}
 var listProducts []Product
 
 func TestFunc(c *fiber.Ctx) error {
@@ -46,9 +53,11 @@ func AddProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	for _, val := range Families {
+	for index, val := range Families {
 		if product.Family_id == val.Id {
 			product.Id = uuid.NewString()
+			Families[index].Total = val.Total + product.Total
+
 			listProducts = append(listProducts, *product)
 
 			return c.JSON(product)
@@ -121,7 +130,16 @@ func NewFamily(c *fiber.Ctx) error {
 }
 
 func GetFamilies(c *fiber.Ctx) error {
+	for index := range Families {
+		Families[index].Products_count = 0
+		familyID := Families[index].Id
+		for _, product := range listProducts {
+			if familyID == product.Family_id {
 
+				Families[index].Products_count += product.Quantity
+			}
+		}
+	}
 	return c.JSON(Families)
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/AkselRivera/check-app/routes"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -12,6 +13,7 @@ func main() {
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
+	app.Use(cors.New())
 	// TODO: GET Statics here
 	app.Get("/", routes.TestFunc)
 
@@ -25,7 +27,7 @@ func main() {
 
 	api.Post("/family", routes.NewFamily)
 	api.Get("/families", routes.GetFamilies)
-	api.Delete("/family/:id", routes.GetFamilies)
+	api.Delete("/family/:id", routes.DeleteFamily)
 
 	app.Listen(":8000")
 }
