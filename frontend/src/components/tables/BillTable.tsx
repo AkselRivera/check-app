@@ -57,6 +57,20 @@ export default function BillTable() {
     openModal({ setProps });
   }
 
+  function deleteForm(item: any) {
+    //TODO: Hacer el tipo que recibe este metodo
+
+    setProps((state) => ({
+      ...state,
+      title: "Edit order",
+      isOpen: true,
+      disabled: false,
+    }));
+
+    console.log(item);
+    openModal({ setProps });
+  }
+
   return (
     <Card className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
       <table className="w-full min-w-max table-auto text-center bg-gradient-to-b from-gray-800 to-gray-900 text-blue-gray-50">
@@ -84,7 +98,7 @@ export default function BillTable() {
                     className="border-b border-gray-800 bg-gray-900 p-4 sticky top-0 z-10"
                   >
                     <Button
-                      variant="outlined"
+                      color="green"
                       onClick={addForm}
                       className="focus:ring-transparent focus-visible:ring-0 "
                     >
@@ -100,9 +114,9 @@ export default function BillTable() {
             data?.data.map((row: any, index: number) => {
               const isLast = index === data?.data.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-              const { check, name, family_id, quantity, total } = row;
+              const { id, check, name, family_id, quantity, total } = row;
               return (
-                <tr key={name}>
+                <tr key={id}>
                   <td className={classes}>
                     <Checkbox defaultChecked={check} />
                   </td>
@@ -129,6 +143,13 @@ export default function BillTable() {
                   <td className={classes}>
                     <Button onClick={() => editForm(row)} variant="text">
                       Edit
+                    </Button>
+                    <Button
+                      onClick={() => deleteForm(row)}
+                      variant="text"
+                      color="red"
+                    >
+                      Delete
                     </Button>
                   </td>
                 </tr>

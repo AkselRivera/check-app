@@ -1,5 +1,5 @@
-import gopherBill from '../assets/gopher-notes.svg'
-import BillTable from '../components/tables/BillTable'
+import gopherBill from "../assets/gopher-notes.svg";
+import BillTable from "../components/tables/BillTable";
 
 export const Bill = () => {
   return (
@@ -12,5 +12,5 @@ export const Bill = () => {
       </div>
       <BillTable />
     </div>
-  )
-}
+  );
+};

@@ -8,7 +8,7 @@ import { FamilyForm } from "../components/modal/form/FamilyForm";
 import { openModal } from "../utils/modal";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { TipForm } from "../components/modal/form/TipForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CustomCard from "../components/share/CustomCard";
 import gopherData from "../assets/gopher-data.svg";
@@ -29,12 +29,27 @@ export const Families = () => {
     isOpen: false,
   });
 
+  const [total, setTotal] = useState(0);
+  const [totalWTip, setTotalWTip] = useState(0);
+  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
+
   const { data } = useQuery({
     queryKey: [App_QueryCache.FAMILY],
     queryFn: getFamilies,
   });
 
-  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
+  useEffect(() => {
+    if (!!data?.data) {
+      setTotal(0);
+      setTotalWTip(0);
+      data?.data.forEach((item: any) =>
+        setTotal((state) => state + item.total)
+      );
+      data?.data.forEach((item: any) =>
+        setTotalWTip((state) => state + item.total)
+      );
+    }
+  }, [data?.data]);
 
   function addForm() {
     setProps((state) => ({
@@ -48,7 +63,6 @@ export const Families = () => {
   }
 
   function tipForm() {
-    // setElemnt(TipForm )
     setProps((state) => ({
       ...state,
       title: "Tip details",
@@ -84,7 +98,20 @@ export const Families = () => {
         </div>
         <img src={gopherData} className="logo w-1/4 p-2 " alt="Gopher Bill" />
       </div>
-
+      <div className="p-6 justify-evenly flex">
+        <div className="text-center">
+          <Typography variant="h5">Total:</Typography>
+          <Typography className="text-base md:text-lg font-semibold">
+            $ {total}
+          </Typography>
+        </div>
+        <div className="text-center">
+          <Typography variant="h5">Total with tip:</Typography>
+          <Typography className="text-base md:text-lg font-semibold">
+            $ {totalWTip * 1.1}
+          </Typography>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2 justify-center overflow-auto  px-2 ">
         {data?.data?.map((item: any) => (
           <CustomCard
