@@ -29,5 +29,5 @@ func main() {
 	api.Get("/families", routes.GetFamilies)
 	api.Delete("/family/:id", routes.DeleteFamily)
 
-	app.Listen(":8000")
+	app.Listen(":80")
 }
