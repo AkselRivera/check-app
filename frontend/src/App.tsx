@@ -1,18 +1,22 @@
 import "./App.css";
 
 import { MainPage } from "./pages/MainPage";
-
+import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { store } from "./reducer/store";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="w-full h-screen">
-        <MainPage />
-      </div>
-    </QueryClientProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <div className="w-full h-screen">
+          <MainPage />
+        </div>
+      </QueryClientProvider>
+    </Provider>
   );
 }
 

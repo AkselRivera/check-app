@@ -67,7 +67,6 @@ export default function BillTable() {
       disabled: false,
     }));
 
-    console.log(item);
     openModal({ setProps });
   }
 
@@ -140,7 +139,7 @@ export default function BillTable() {
                       $ {total}
                     </Typography>
                   </td>
-                  <td className={classes}>
+                  <td className={`${classes} flex flex-col`}>
                     <Button onClick={() => editForm(row)} variant="text">
                       Edit
                     </Button>
