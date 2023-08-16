@@ -83,11 +83,11 @@ func UpdateProduct(c *fiber.Ctx) error {
 	for _, val := range Families {
 		if product.Family_id == val.Id {
 
-			for _, prod := range listProducts {
+			for index, prod := range listProducts {
 				if prod.Id == productID {
 					product.Id = productID
-					prod = *product
-					return c.JSON(prod)
+					listProducts[index] = *product
+					return c.JSON(listProducts[index])
 				}
 			}
 			return c.Status(404).JSON(fiber.Map{

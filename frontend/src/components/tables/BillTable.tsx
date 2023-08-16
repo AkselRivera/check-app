@@ -4,10 +4,10 @@ import { openModal } from "../../utils/modal";
 import { useState } from "react";
 
 import Modal from "../share/Modal";
-import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "../../api/products/getProducts";
 import { DefaultColumn } from "../share/table/DefaultColumn";
-import { App_QueryCache } from "../../constants/QueryCache";
+import { useDispatch } from "react-redux";
+import { selectProduct } from "../../reducer/ui";
+import { IProduct } from "../../api/products/getProducts";
 
 interface ButtonHeader {
   title: string;
@@ -22,47 +22,49 @@ const TABLE_HEAD = [
   { title: "Add" },
 ];
 
-export default function BillTable() {
+type BillProps = {
+  products: IProduct[] | null | undefined;
+};
+
+export default function BillTable({ products }: BillProps) {
+  const dispatch = useDispatch();
+
   const [props, setProps] = useState({
     title: "",
     isOpen: false,
-  });
-
-  const { data } = useQuery({
-    queryKey: [App_QueryCache.PRODUCT],
-    queryFn: getProducts,
   });
 
   function addForm() {
     openModal({ setProps });
     setProps((state) => ({
       ...state,
-      title: "Add order",
+      title: "Add product",
       isOpen: true,
       disabled: false,
     }));
   }
 
-  function editForm(item: any) {
+  function editForm(item: IProduct) {
     //TODO: Hacer el tipo que recibe este metodo
+    dispatch(selectProduct(item));
 
     setProps((state) => ({
       ...state,
-      title: "Edit order",
+      title: "Edit product",
       isOpen: true,
       disabled: false,
     }));
 
-    console.log(item);
     openModal({ setProps });
   }
 
-  function deleteForm(item: any) {
+  function deleteForm(item: IProduct) {
     //TODO: Hacer el tipo que recibe este metodo
+    dispatch(selectProduct(item));
 
     setProps((state) => ({
       ...state,
-      title: "Edit order",
+      title: "Delete product",
       isOpen: true,
       disabled: false,
     }));
@@ -109,15 +111,15 @@ export default function BillTable() {
           </tr>
         </thead>
         <tbody>
-          {!!data?.data ? (
-            data?.data.map((row: any, index: number) => {
-              const isLast = index === data?.data.length - 1;
+          {!!products ? (
+            products.map((row, index: number) => {
+              const isLast = index === products.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-              const { id, check, name, family_id, quantity, total } = row;
+              const { id, name, familyId, quantity, total } = row;
               return (
                 <tr key={id}>
                   <td className={classes}>
-                    <Checkbox defaultChecked={check} />
+                    <Checkbox />
                   </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
@@ -126,7 +128,7 @@ export default function BillTable() {
                   </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
-                      {family_id}
+                      {familyId}
                     </Typography>
                   </td>
                   <td className={classes}>

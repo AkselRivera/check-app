@@ -8,7 +8,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { postProduct } from "../../../api/products/postProducts";
 import { App_QueryCache } from "../../../constants/QueryCache";
 import { getFamilies } from "../../../api/family/getFamily";
-import { Product } from "../../../types/types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../reducer/store";
+import { cleanProduct } from "../../../reducer/ui";
+import { Family } from "../../../types/types";
+import { patchProduct } from "../../../api/products/patchProducts";
 
 type Inputs = {
   name: string;
@@ -19,7 +23,16 @@ type Inputs = {
 };
 
 export const ProductForm = ({ setProps }: ModalProps) => {
+  const { selectedProduct } = useSelector((state: RootState) => state.ui);
+
+  const dispatch = useDispatch();
   const [disable, setDisable] = useState(false);
+
+  const { data: familiesData, isLoading } = useQuery({
+    queryKey: [App_QueryCache.FAMILY_SHORT],
+    queryFn: getFamilies,
+  });
+
   const {
     control,
     register,
@@ -28,7 +41,11 @@ export const ProductForm = ({ setProps }: ModalProps) => {
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
-      family_id: "default",
+      name: selectedProduct?.name || "",
+      quantity: selectedProduct?.quantity || 0,
+      unitPrice: selectedProduct?.unitPrice || 0,
+      family_id: selectedProduct?.familyId || "default",
+      total: selectedProduct?.total || 0,
     },
   });
 
@@ -37,39 +54,61 @@ export const ProductForm = ({ setProps }: ModalProps) => {
 
   const [total, setTotal] = useState(0);
 
-  const { data } = useQuery({
-    queryKey: [App_QueryCache.FAMILY_SHORT],
-    queryFn: getFamilies,
-  });
-
   const postMutation = useMutation({
     mutationFn: (data: Inputs) => postProduct(data),
   });
+  const patchMutation = useMutation({
+    mutationFn: (data: Inputs) =>
+      patchProduct(data, selectedProduct?.id as string),
+  });
 
   const client = useQueryClient();
-
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    setDisable(true);
-    postMutation.mutate(
-      { ...data, total },
-      {
-        onSuccess: () => {
-          setDisable(false);
-          client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
-          client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
-          client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
-          client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
-          closeModal({ setProps });
-        },
-      }
-    );
-  };
 
   useEffect(() => {
     if (!!watchPrice && !!watchQuantity) {
       setTotal(Number(watchPrice) * Number(watchQuantity));
     }
   }, [watchQuantity, watchPrice]);
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setDisable(true);
+    if (!!selectedProduct) {
+      patchMutation.mutate(
+        { ...data, total },
+        {
+          onSuccess: () => {
+            setDisable(false);
+            client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
+            client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
+            client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
+            client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
+            handleModal();
+          },
+        }
+      );
+    } else {
+      postMutation.mutate(
+        { ...data, total },
+        {
+          onSuccess: () => {
+            setDisable(false);
+            client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
+            client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
+            client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
+            client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
+            handleModal();
+          },
+        }
+      );
+    }
+  };
+
+  function handleModal() {
+    dispatch(cleanProduct());
+    closeModal({ setProps });
+  }
+
+  if (isLoading) return <h1>Loadung...</h1>;
 
   return (
     <div className=" ">
@@ -137,10 +176,10 @@ export const ProductForm = ({ setProps }: ModalProps) => {
                 className: "text-gray-50 h-28 bg-custom border-0 ",
               }}
             >
-              {!data?.data ? (
+              {!familiesData?.data ? (
                 <Option disabled>No data</Option>
               ) : (
-                data?.data?.map((item: Product) => (
+                familiesData?.data?.map((item: Family) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
                   </Option>
@@ -196,7 +235,7 @@ export const ProductForm = ({ setProps }: ModalProps) => {
 
         <div className="flex flex-row gap-2 justify-evenly w-full">
           <Button
-            onClick={() => closeModal({ setProps })}
+            onClick={handleModal}
             variant="outlined"
             color="red"
             className="focus:ring-transparent outline-none disabled:cursor-not-allowed"

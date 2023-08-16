@@ -8,6 +8,6 @@ export async function getFamilies() {
 
     return resp;
   } catch (error) {
-    console.log(error);
+    return null;
   }
 }

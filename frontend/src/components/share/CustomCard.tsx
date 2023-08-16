@@ -21,7 +21,7 @@ const FORM_TYPES = {
 } as const;
 
 export default function CustomCard(props: any) {
-  const { id, name, total, products_count } = props;
+  const { name, total, products_count } = props;
   const [customProps, setProps] = useState({
     title: "",
     isOpen: false,
@@ -72,7 +72,7 @@ export default function CustomCard(props: any) {
         </Typography>
         <Typography className="font-semibold "> Total with tip:</Typography>
         <Typography className="text-center" color="green">
-          $ {total * 1.1}
+          $ {(total * 1.1).toFixed(2)}
         </Typography>
       </CardBody>
       <CardFooter className="pt-0 text-center">
