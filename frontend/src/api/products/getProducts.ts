@@ -59,6 +59,6 @@ export async function getProducts(): Promise<Product[] | null> {
 
     return products;
   } catch (error) {
-    return null;
+    throw error;
   }
 }

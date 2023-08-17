@@ -1,22 +1,22 @@
-import React from 'react'
-import { Navbar, Typography, Collapse } from '@material-tailwind/react'
+import React from "react";
+import { Navbar, Typography, Collapse } from "@material-tailwind/react";
 
-import reactLogo from '../assets/react.svg'
-import ProfileMenu from './navbar/ProfileMenu'
-import NavList from './navbar/NavList'
+import reactLogo from "../assets/react.svg";
+import ProfileMenu from "./navbar/ProfileMenu";
+import NavList from "./navbar/NavList";
 
 // profile menu component
 
 export default function CustomNav() {
-  const [isNavOpen, setIsNavOpen] = React.useState(false)
+  const [isNavOpen, setIsNavOpen] = React.useState(false);
   // const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur)
 
   React.useEffect(() => {
     window.addEventListener(
-      'resize',
+      "resize",
       () => window.innerWidth >= 960 && setIsNavOpen(false)
-    )
-  }, [])
+    );
+  }, []);
 
   return (
     <Navbar
@@ -49,7 +49,6 @@ export default function CustomNav() {
         </IconButton>
       */}
         <div className="flex items-center gap-x-2">
-          <span>Aksel</span>
           <ProfileMenu />
         </div>
       </div>
@@ -57,5 +56,5 @@ export default function CustomNav() {
         <NavList />
       </Collapse>
     </Navbar>
-  )
+  );
 }

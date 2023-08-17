@@ -1,6 +1,7 @@
 import {
   Button,
   IconButton,
+  Spinner,
   Tooltip,
   Typography,
 } from "@material-tailwind/react";
@@ -17,6 +18,8 @@ import { getFamilies } from "../api/family/getFamily";
 
 import { useQuery } from "@tanstack/react-query";
 import { App_QueryCache } from "../constants/QueryCache";
+import { useSelector } from "react-redux";
+import { RootState } from "../reducer/store";
 
 const FORM_TYPES = {
   TIP_FORM: "TIP_FORM",
@@ -24,6 +27,8 @@ const FORM_TYPES = {
 } as const;
 
 export const Families = () => {
+  const { tip } = useSelector((state: RootState) => state.ui);
+
   const [props, setProps] = useState({
     title: "",
     isOpen: false,
@@ -33,7 +38,11 @@ export const Families = () => {
   const [totalWTip, setTotalWTip] = useState(0);
   const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
 
-  const { data } = useQuery({
+  const {
+    data,
+    isFetching,
+    refetch: refetchFamilies,
+  } = useQuery({
     queryKey: [App_QueryCache.FAMILY],
     queryFn: getFamilies,
   });
@@ -84,9 +93,21 @@ export const Families = () => {
                 <PlusIcon className="h-4 w-4" />
               </IconButton>
             </Tooltip>
+            {isFetching ? (
+              <Spinner color="blue" className="h-[1.2rem]" />
+            ) : (
+              <IconButton
+                size="sm"
+                variant="text"
+                className="my-auto"
+                onClick={() => refetchFamilies()}
+              >
+                <i className="fa-solid fa-arrows-rotate fa-lg" />
+              </IconButton>
+            )}
           </div>
           <Typography className="text-xs">
-            Currently you have selected 10% tip
+            Currently you have selected {tip}% tip
           </Typography>
           <Button
             variant="text"
@@ -108,7 +129,7 @@ export const Families = () => {
         <div className="text-center">
           <Typography variant="h5">Total with tip:</Typography>
           <Typography className="text-base md:text-lg font-semibold">
-            $ {totalWTip * 1.1}
+            $ {totalWTip * ((100 + tip) / 100)}
           </Typography>
         </div>
       </div>
@@ -120,6 +141,7 @@ export const Families = () => {
             name={item.name}
             total={item.total}
             products_count={item.products_count}
+            tip={(100 + tip) / 100}
           />
         ))}
       </div>

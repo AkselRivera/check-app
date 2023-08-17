@@ -12,9 +12,6 @@ import {
 import {
   UserCircleIcon,
   ChevronDownIcon,
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  LifebuoyIcon,
   PowerIcon,
 } from "@heroicons/react/24/outline";
 
@@ -23,18 +20,18 @@ const profileMenuItems = [
     label: "My Profile",
     icon: UserCircleIcon,
   },
-  {
-    label: "Edit Profile",
-    icon: Cog6ToothIcon,
-  },
-  {
-    label: "Inbox",
-    icon: InboxArrowDownIcon,
-  },
-  {
-    label: "Help",
-    icon: LifebuoyIcon,
-  },
+  // {
+  //   label: "Edit Profile",
+  //   icon: Cog6ToothIcon,
+  // },
+  // {
+  //   label: "Inbox",
+  //   icon: InboxArrowDownIcon,
+  // },
+  // {
+  //   label: "Help",
+  //   icon: LifebuoyIcon,
+  // },
   {
     label: "Sign Out",
     icon: PowerIcon,
@@ -60,6 +57,9 @@ export default function ProfileMenu() {
             className="border border-blue-500 p-0.5"
             src="https://raw.githubusercontent.com/marcusolsson/gophers/master/scientist.svg"
           />
+          <span className="text-sm normal-case text-white font-medium">
+            Guest
+          </span>
           <ChevronDownIcon
             strokeWidth={2.5}
             className={`h-3 w-3 transition-transform ${

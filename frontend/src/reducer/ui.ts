@@ -7,12 +7,14 @@ import { IProduct } from "../api/products/getProducts";
 interface uiState {
   selectedProduct: IProduct | null;
   selectedFamily: Family | null;
+  tip: number;
 }
 
 // Define the initial state using that type
 const initialState: uiState = {
   selectedProduct: null,
   selectedFamily: null,
+  tip: 10,
 };
 
 export const uiReducer = createSlice({
@@ -32,10 +34,18 @@ export const uiReducer = createSlice({
     cleanFamily: (state) => {
       state.selectedFamily = null;
     },
+    changeTip: (state, action: PayloadAction<number>) => {
+      state.tip = action.payload;
+    },
   },
 });
 
-export const { selectProduct, cleanProduct, selectFamily, cleanFamily } =
-  uiReducer.actions;
+export const {
+  selectProduct,
+  cleanProduct,
+  selectFamily,
+  cleanFamily,
+  changeTip,
+} = uiReducer.actions;
 
 export default uiReducer.reducer;

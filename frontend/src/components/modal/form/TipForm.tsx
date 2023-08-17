@@ -1,23 +1,31 @@
-import { Button, Input } from '@material-tailwind/react'
-import { ModalProps } from '../modal.types'
-import { closeModal } from '../../../utils/modal'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { Button, Input } from "@material-tailwind/react";
+import { ModalProps } from "../modal.types";
+import { closeModal } from "../../../utils/modal";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { RootState } from "../../../reducer/store";
+import { useDispatch, useSelector } from "react-redux";
+import { changeTip } from "../../../reducer/ui";
 
 type Inputs = {
-  percentage: string
-}
+  percentage: number;
+};
 
 export const TipForm = ({ setProps }: ModalProps) => {
+  const { tip } = useSelector((state: RootState) => state.ui);
+  const dispatch = useDispatch();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>({
-    defaultValues: { percentage: "10" },
-  })
+    defaultValues: { percentage: tip },
+  });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    dispatch(changeTip(data.percentage));
+    closeModal({ setProps });
+  };
 
   return (
     <div className="max-h-[70vh] ">
@@ -33,9 +41,10 @@ export const TipForm = ({ setProps }: ModalProps) => {
           </div>
         )}
         <Input
-          {...register('percentage', {
-            required: 'Tip percentage is required',
-            min:1
+          {...register("percentage", {
+            required: "Tip percentage is required",
+            min: 1,
+            valueAsNumber: true,
           })}
           autoComplete="off"
           variant="standard"
@@ -43,10 +52,10 @@ export const TipForm = ({ setProps }: ModalProps) => {
           color="white"
           error={!!errors.percentage}
           labelProps={{
-            className: ' text-base text-gray-400',
+            className: " text-base text-gray-400",
           }}
           containerProps={{
-            className: ' w-full  pt-2 mb-6 ',
+            className: " w-full  pt-2 mb-6 ",
           }}
           className="text-gray-50 bg-transparent"
         />
@@ -70,5 +79,5 @@ export const TipForm = ({ setProps }: ModalProps) => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};

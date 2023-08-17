@@ -1,5 +1,5 @@
 import { ProductForm } from "../modal/form/ProductForm";
-import { Button, Card, Checkbox, Typography } from "@material-tailwind/react";
+import { Button, Checkbox, Typography } from "@material-tailwind/react";
 import { openModal } from "../../utils/modal";
 import { useState } from "react";
 
@@ -8,16 +8,23 @@ import { DefaultColumn } from "../share/table/DefaultColumn";
 import { useDispatch } from "react-redux";
 import { selectProduct } from "../../reducer/ui";
 import { IProduct } from "../../api/products/getProducts";
+import { ProductDelete } from "../modal/delete/ProductDelete";
 
 interface ButtonHeader {
   title: string;
 }
+
+const FORM_TYPES = {
+  DELETE_FORM: "PORDUCT_DELETE",
+  PRODUCT_FORM: "PRODUCT_FORM",
+} as const;
 
 const TABLE_HEAD = [
   "Check",
   "Name",
   "Family",
   "Quantity",
+  "Unit Price",
   "Total",
   { title: "Add" },
 ];
@@ -34,7 +41,10 @@ export default function BillTable({ products }: BillProps) {
     isOpen: false,
   });
 
+  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
+
   function addForm() {
+    setFormType("PRODUCT_FORM");
     openModal({ setProps });
     setProps((state) => ({
       ...state,
@@ -45,7 +55,7 @@ export default function BillTable({ products }: BillProps) {
   }
 
   function editForm(item: IProduct) {
-    //TODO: Hacer el tipo que recibe este metodo
+    setFormType("PRODUCT_FORM");
     dispatch(selectProduct(item));
 
     setProps((state) => ({
@@ -59,7 +69,7 @@ export default function BillTable({ products }: BillProps) {
   }
 
   function deleteForm(item: IProduct) {
-    //TODO: Hacer el tipo que recibe este metodo
+    setFormType("DELETE_FORM");
     dispatch(selectProduct(item));
 
     setProps((state) => ({
@@ -73,7 +83,7 @@ export default function BillTable({ products }: BillProps) {
   }
 
   return (
-    <Card className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
+    <div className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
       <table className="w-full min-w-max table-auto text-center bg-gradient-to-b from-gray-800 to-gray-900 text-blue-gray-50">
         <thead>
           <tr>
@@ -115,7 +125,7 @@ export default function BillTable({ products }: BillProps) {
             products.map((row, index: number) => {
               const isLast = index === products.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-              const { id, name, familyId, quantity, total } = row;
+              const { id, name, familyId, unitPrice, quantity, total } = row;
               return (
                 <tr key={id}>
                   <td className={classes}>
@@ -138,7 +148,12 @@ export default function BillTable({ products }: BillProps) {
                   </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
-                      $ {total}
+                      $ {unitPrice.toFixed(2)}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography variant="small" className="font-normal">
+                      $ {total.toFixed(2)}
                     </Typography>
                   </td>
                   <td className={`${classes} flex flex-col`}>
@@ -163,8 +178,12 @@ export default function BillTable({ products }: BillProps) {
       </table>
 
       <Modal title={props.title} isOpen={props.isOpen}>
-        <ProductForm setProps={setProps} />
+        {formType === "PRODUCT_FORM" ? (
+          <ProductForm setProps={setProps} />
+        ) : (
+          <ProductDelete setProps={setProps} />
+        )}
       </Modal>
-    </Card>
+    </div>
   );
 }

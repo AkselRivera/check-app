@@ -192,7 +192,7 @@ export const ProductForm = ({ setProps }: ModalProps) => {
         <Input
           {...register("quantity", {
             required: "Quantity must be greater than 1",
-            min: 1,
+            min: { value: 1, message: "Quantity must be greater than 1" },
             valueAsNumber: true,
           })}
           variant="standard"
@@ -211,7 +211,7 @@ export const ProductForm = ({ setProps }: ModalProps) => {
         <Input
           {...register("unitPrice", {
             required: "Price must be greater than $ 0.0",
-            min: 0.1,
+            min: { value: 0.1, message: "Price must be greater than $0.0" },
             valueAsNumber: true,
           })}
           variant="standard"
