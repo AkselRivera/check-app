@@ -32,6 +32,11 @@ var Families = []Family{
 }
 var listProducts []Product
 
+func ProductRoutes(router fiber.Router) {
+	router.Get("/")
+
+}
+
 func TestFunc(c *fiber.Ctx) error {
 
 	return c.SendString("Hello, World!")

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/AkselRivera/check-app/config"
+	service "github.com/AkselRivera/check-app/controllers"
 	"github.com/AkselRivera/check-app/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -8,7 +10,18 @@ import (
 )
 
 func main() {
+	port := config.EnvPort()
+	if len(port) == 0 {
+		port = ":8080"
+	}
+
 	app := fiber.New()
+	config.ConnectDB()
+
+	defer func() {
+		config.DisconnectDB(config.DB)
+	}()
+
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
@@ -18,7 +31,9 @@ func main() {
 	app.Get("/", routes.TestFunc)
 
 	api := app.Group("/api/v1")
-	api.Get("/check", routes.GetCheck)
+	apiProduct := api.Group("/product")
+
+	routes.ProductRoutes(apiProduct)
 
 	api.Get("/product", routes.GetCheck)
 	api.Post("/product", routes.AddProduct)
@@ -29,5 +44,8 @@ func main() {
 	api.Get("/families", routes.GetFamilies)
 	api.Delete("/family/:id", routes.DeleteFamily)
 
-	app.Listen(":80")
+	api.Get("/mongo", service.GetProducts)
+	api.Post("/mongo", service.CreateProduct)
+
+	app.Listen(port)
 }
