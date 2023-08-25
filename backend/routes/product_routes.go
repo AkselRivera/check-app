@@ -1,169 +1,170 @@
 package routes
 
 import (
-	"log"
-
+	"github.com/AkselRivera/check-app/controllers"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
-type Product struct {
-	Id        string  `json:"id" xml:"id" form:"id"`
-	Name      string  `json:"name" xml:"name" form:"name"`
-	Quantity  int     `json:"quantity" xml:"quantity" form:"quantity"`
-	Family_id string  `json:"family_id" xml:"family_id" form:"family_id"`
-	UnitPrice float64 `json:"unitPrice" xml:"unit_price" form:"unitPrice"`
-	Total     float64 `json:"total" xml:"total" form:"total"`
-}
-
-type Family struct {
-	Id             string  `json:"id" xml:"id" form:"id"`
-	Name           string  `json:"name" xml:"name" form:"name"`
-	Total          float64 `json:"total" xml:"total" form:"total"`
-	Products_count int     `json:"products_count" xml:"products_count" form:"products_count"`
-}
-
-var Families = []Family{
-	{
-		Id:    "default",
-		Name:  "Default",
-		Total: 0,
-	},
-}
-var listProducts []Product
-
 func ProductRoutes(router fiber.Router) {
-	router.Get("/")
+	router.Get("/", controllers.GetProducts)
+	router.Post("/", controllers.CreateProduct)
+	router.Patch("/:id", controllers.UpdateProduct)
+	router.Delete("/:id", controllers.DeleteProduct)
 
 }
 
-func TestFunc(c *fiber.Ctx) error {
+// type Product struct {
+// 	Id        string  `json:"id" xml:"id" form:"id"`
+// 	Name      string  `json:"name" xml:"name" form:"name"`
+// 	Quantity  int     `json:"quantity" xml:"quantity" form:"quantity"`
+// 	Family_id string  `json:"family_id" xml:"family_id" form:"family_id"`
+// 	UnitPrice float64 `json:"unitPrice" xml:"unit_price" form:"unitPrice"`
+// 	Total     float64 `json:"total" xml:"total" form:"total"`
+// }
 
-	return c.SendString("Hello, World!")
-}
+// type Family struct {
+// 	Id             string  `json:"id" xml:"id" form:"id"`
+// 	Name           string  `json:"name" xml:"name" form:"name"`
+// 	Total          float64 `json:"total" xml:"total" form:"total"`
+// 	Products_count int     `json:"products_count" xml:"products_count" form:"products_count"`
+// }
 
-func GetCheck(c *fiber.Ctx) error {
+// var Families = []Family{
+// 	{
+// 		Id:    "default",
+// 		Name:  "Default",
+// 		Total: 0,
+// 	},
+// }
+// var listProducts []Product
 
-	return c.JSON(listProducts)
-}
+// func TestFunc(c *fiber.Ctx) error {
 
-// TODO: Refactor with backend query functions
-func AddProduct(c *fiber.Ctx) error {
-	product := new(Product)
+// 	return c.SendString("Hello, World!")
+// }
 
-	if err := c.BodyParser(&product); err != nil {
-		log.Printf("Error parsing JSON: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Error parsing JSON",
-		})
-	}
+// func GetCheck(c *fiber.Ctx) error {
 
-	for index, val := range Families {
-		if product.Family_id == val.Id {
-			product.Id = uuid.NewString()
-			Families[index].Total = val.Total + product.Total
+// 	return c.JSON(listProducts)
+// }
 
-			listProducts = append(listProducts, *product)
+// // TODO: Refactor with backend query functions
+// func AddProduct(c *fiber.Ctx) error {
+// 	product := new(Product)
 
-			return c.JSON(product)
-		}
-	}
-	return c.Status(404).JSON(fiber.Map{
-		"error": "Family ID not found",
-	})
-}
+// 	if err := c.BodyParser(&product); err != nil {
+// 		log.Printf("Error parsing JSON: %v", err)
+// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+// 			"error": "Error parsing JSON",
+// 		})
+// 	}
 
-// TODO: Refactor with backend query functions
-func UpdateProduct(c *fiber.Ctx) error {
-	productID := c.Params("id")
-	product := new(Product)
+// 	for index, val := range Families {
+// 		if product.Family_id == val.Id {
+// 			product.Id = uuid.NewString()
+// 			Families[index].Total = val.Total + product.Total
 
-	if err := c.BodyParser(&product); err != nil {
-		log.Printf("Error parsing JSON: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Error parsing JSON",
-		})
-	}
+// 			listProducts = append(listProducts, *product)
 
-	for _, val := range Families {
-		if product.Family_id == val.Id {
+// 			return c.JSON(product)
+// 		}
+// 	}
+// 	return c.Status(404).JSON(fiber.Map{
+// 		"error": "Family ID not found",
+// 	})
+// }
 
-			for index, prod := range listProducts {
-				if prod.Id == productID {
-					product.Id = productID
-					listProducts[index] = *product
-					return c.JSON(listProducts[index])
-				}
-			}
-			return c.Status(404).JSON(fiber.Map{
-				"error": "Product ID not found",
-			})
-		}
-	}
-	return c.Status(404).JSON(fiber.Map{
-		"error": "Family ID not found",
-	})
-}
+// // TODO: Refactor with backend query functions
+// func UpdateProduct(c *fiber.Ctx) error {
+// 	productID := c.Params("id")
+// 	product := new(Product)
 
-// TODO: Refactor with backend query functions
-func DeleteProduct(c *fiber.Ctx) error {
-	productID := c.Params("id")
+// 	if err := c.BodyParser(&product); err != nil {
+// 		log.Printf("Error parsing JSON: %v", err)
+// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+// 			"error": "Error parsing JSON",
+// 		})
+// 	}
 
-	for index, prod := range listProducts {
-		if prod.Id == productID {
-			listProducts = append(listProducts[:index], listProducts[index+1:]...)
-			return c.JSON(listProducts)
-		}
-	}
-	return c.Status(404).JSON(fiber.Map{
-		"error": "Product ID not found",
-	})
+// 	for _, val := range Families {
+// 		if product.Family_id == val.Id {
 
-}
+// 			for index, prod := range listProducts {
+// 				if prod.Id == productID {
+// 					product.Id = productID
+// 					listProducts[index] = *product
+// 					return c.JSON(listProducts[index])
+// 				}
+// 			}
+// 			return c.Status(404).JSON(fiber.Map{
+// 				"error": "Product ID not found",
+// 			})
+// 		}
+// 	}
+// 	return c.Status(404).JSON(fiber.Map{
+// 		"error": "Family ID not found",
+// 	})
+// }
 
-func NewFamily(c *fiber.Ctx) error {
+// // TODO: Refactor with backend query functions
+// func DeleteProduct(c *fiber.Ctx) error {
+// 	productID := c.Params("id")
 
-	fam := new(Family)
+// 	for index, prod := range listProducts {
+// 		if prod.Id == productID {
+// 			listProducts = append(listProducts[:index], listProducts[index+1:]...)
+// 			return c.JSON(listProducts)
+// 		}
+// 	}
+// 	return c.Status(404).JSON(fiber.Map{
+// 		"error": "Product ID not found",
+// 	})
 
-	if err := c.BodyParser(fam); err != nil {
-		return err
-	}
-	fam.Id = uuid.NewString()
-	Families = append(Families, *fam)
+// }
 
-	return c.JSON(fam)
-}
+// func NewFamily(c *fiber.Ctx) error {
 
-func GetFamilies(c *fiber.Ctx) error {
-	for index := range Families {
-		Families[index].Products_count = 0
-		familyID := Families[index].Id
-		for _, product := range listProducts {
-			if familyID == product.Family_id {
+// 	fam := new(Family)
 
-				Families[index].Products_count += product.Quantity
-			}
-		}
-	}
-	return c.JSON(Families)
-}
+// 	if err := c.BodyParser(fam); err != nil {
+// 		return err
+// 	}
+// 	fam.Id = uuid.NewString()
+// 	Families = append(Families, *fam)
 
-func DeleteFamily(c *fiber.Ctx) error {
-	familyID := c.Params("id")
+// 	return c.JSON(fam)
+// }
 
-	for index, fam := range Families {
-		if fam.Id == familyID {
-			Families = append(Families[:index], Families[index+1:]...)
-			return c.JSON(Families)
-		}
-	}
-	return c.Status(404).JSON(fiber.Map{
-		"error": "Family ID not found",
-	})
+// func GetFamilies(c *fiber.Ctx) error {
+// 	for index := range Families {
+// 		Families[index].Products_count = 0
+// 		familyID := Families[index].Id
+// 		for _, product := range listProducts {
+// 			if familyID == product.Family_id {
 
-}
+// 				Families[index].Products_count += product.Quantity
+// 			}
+// 		}
+// 	}
+// 	return c.JSON(Families)
+// }
 
-func GetTotalPerFam(c *fiber.Ctx) error {
+// func DeleteFamily(c *fiber.Ctx) error {
+// 	familyID := c.Params("id")
 
-	return c.JSON(Families)
-}
+// 	for index, fam := range Familfiber
+// 		if fam.Id == familyID {
+// 			Families = append(Families[:index], Families[index+1:]...)
+// 			return c.JSON(Families)
+// 		}
+// 	}
+// 	return c.Status(404).JSON(fiber.Map{
+// 		"error": "Family ID not found",
+// 	})
+
+// }
+
+// func GetTotalPerFam(c *fiber.Ctx) error {
+
+// 	return c.JSON(Families)
+// }
