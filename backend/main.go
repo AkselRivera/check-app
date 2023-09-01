@@ -45,5 +45,5 @@ func main() {
 	// api.Get("/mongo", service.GetProducts)
 	// api.Post("/mongo", service.CreateProduct)
 
-	app.Listen(port)
+	app.Listen(":" + port)
 }
