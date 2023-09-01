@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/AkselRivera/check-app/config"
 	"github.com/AkselRivera/check-app/routes"
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +17,6 @@ func main() {
 	app := fiber.New()
 	config.ConnectDB()
 
-	fmt.Println(port)
 	defer func() {
 		config.DisconnectDB(config.DB)
 	}()
