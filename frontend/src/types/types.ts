@@ -7,7 +7,7 @@ export type ProductResponse = {
   total: number;
 };
 
-export type Family = {
+export type FamilyResponse = {
   id: string;
   name: string;
   total: number;

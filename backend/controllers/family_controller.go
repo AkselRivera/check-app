@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var familyCollection *mongo.Collection = config.GetCollection(config.DB, "family")
@@ -81,4 +83,69 @@ func CreateFamily(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusCreated).JSON(newFamily)
+}
+
+func UpdateFamily(c *fiber.Ctx) error {
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	familyID := c.Params("id")
+	var family models.Family
+
+	//Validate the request body
+	if err := c.BodyParser(&family); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(responses.ErrorResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	//use the validator library to validate required fields
+	if validationErr := familyValidator.Struct(&family); validationErr != nil {
+		return c.Status(http.StatusBadRequest).JSON(responses.ErrorResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+	}
+
+	id, _ := primitive.ObjectIDFromHex(familyID)
+	filter := bson.M{
+		"_id": id,
+	}
+
+	update := bson.D{{Key: "$set", Value: bson.M{
+		"name": family.Name,
+	}}}
+
+	var updatedData models.Family
+	opts := options.FindOneAndUpdate().SetUpsert(true)
+
+	// We update the DB collection
+	familyCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updatedData)
+
+	if updatedData.Id.IsZero() {
+		custom_msg := fmt.Sprintf("Family with ID %v not found", id)
+		return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": custom_msg}})
+	}
+
+	return c.Status(http.StatusCreated).JSON(updatedData)
+}
+
+func DeleteFamily(c *fiber.Ctx) error {
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	familyID := c.Params("id")
+
+	id, _ := primitive.ObjectIDFromHex(familyID)
+	filter := bson.M{
+		"_id": id,
+	}
+
+	resp, err := familyCollection.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	custom_msg := fmt.Sprintf("Family with ID %v not found", familyID)
+
+	if resp.DeletedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": custom_msg}})
+	}
+	return c.Status(http.StatusNoContent).JSON("Family deleted successfully")
 }

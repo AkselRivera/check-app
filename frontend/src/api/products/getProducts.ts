@@ -39,14 +39,14 @@ export class Product implements IProduct {
   }
 }
 
-export async function getProducts(): Promise<Product[] | null> {
+export async function getProducts(): Promise<Product[] | []> {
   try {
     const resp = await axios.get(
       `${import.meta.env.VITE_BACKEND_URL}/api/v1/product`
     );
 
-    const products: Product[] = resp.data.map(
-      (product: ProductResponse) =>
+      const products: Product[] = resp.data?.map(
+        (product: ProductResponse) =>
         new Product({
           id: product.id,
           name: product.name,
@@ -55,9 +55,10 @@ export async function getProducts(): Promise<Product[] | null> {
           familyId: product.family_id,
           total: product.total,
         })
-    );
+        ) ?? [];
 
-    return products;
+        return products;
+
   } catch (error) {
     throw error;
   }

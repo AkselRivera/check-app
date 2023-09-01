@@ -14,7 +14,9 @@ export const Bill = () => {
   } = useQuery({
     queryKey: [App_QueryCache.PRODUCT],
     queryFn: getProducts,
+    retry: false,
   });
+
   return (
     <div className="h-[100%] flex flex-col w-full md:w-1/2 border-red-500 shadow-xl md:shadow-none  ease-in-out duration-300 p-4">
       <div className="flex w-full items-center">

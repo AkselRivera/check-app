@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { Family } from "../types/types";
 import { IProduct } from "../api/products/getProducts";
+import { IFamily } from "../api/family/getFamily";
 
 // Define a type for the slice state
 interface uiState {
   selectedProduct: IProduct | null;
-  selectedFamily: Family | null;
+  selectedFamily: IFamily | null;
   tip: number;
 }
 
@@ -28,7 +28,7 @@ export const uiReducer = createSlice({
     cleanProduct: (state) => {
       state.selectedProduct = null;
     },
-    selectFamily: (state, action: PayloadAction<Family>) => {
+    selectFamily: (state, action: PayloadAction<IFamily>) => {
       state.selectedFamily = action.payload;
     },
     cleanFamily: (state) => {

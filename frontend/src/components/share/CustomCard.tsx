@@ -14,6 +14,8 @@ import Modal from "./Modal";
 import { openModal } from "../../utils/modal";
 import { FamilyDetails } from "../modal/details/FamilyDetails";
 import { FamilyDelete } from "../modal/delete/FamilyDelete";
+import { useDispatch } from "react-redux";
+import { selectFamily } from "../../reducer/ui";
 
 const FORM_TYPES = {
   TIP_FORM: "TIP_FORM",
@@ -21,7 +23,8 @@ const FORM_TYPES = {
 } as const;
 
 export default function CustomCard(props: any) {
-  const { name, total, products_count, tip } = props;
+  const { name, total, productsCount, tip } = props;
+  const dispatch = useDispatch();
   const [customProps, setProps] = useState({
     title: "",
     isOpen: false,
@@ -29,26 +32,28 @@ export default function CustomCard(props: any) {
 
   const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
 
-  function addForm() {
+  function detailsForm() {
+    // setFormType(FORM_TYPES.FAMILY_FORM);
     setProps((state) => ({
       ...state,
-      title: "Add a new Family",
-      isOpen: true,
+      title: "Family details",
       disabled: false,
     }));
-    openModal({ setProps });
-    setFormType(FORM_TYPES.FAMILY_FORM);
+
+    // openModal({ setProps });
+    alert("Almost complete!!");
   }
 
-  function tipForm() {
+  function deleteForm() {
+    setFormType(FORM_TYPES.TIP_FORM);
+    dispatch(selectFamily(props));
     setProps((state) => ({
       ...state,
       title: "Tip details",
-      isOpen: true,
       disabled: false,
     }));
+
     openModal({ setProps });
-    setFormType(FORM_TYPES.TIP_FORM);
   }
 
   return (
@@ -58,7 +63,7 @@ export default function CustomCard(props: any) {
           <IconButton
             color="red"
             className=" rounded-full h-5 w-5"
-            onClick={tipForm}
+            onClick={deleteForm}
           >
             <XMarkIcon className="h-4 w-4" />
           </IconButton>
@@ -76,8 +81,8 @@ export default function CustomCard(props: any) {
         </Typography>
       </CardBody>
       <CardFooter className="pt-0 text-center">
-        <Badge content={products_count}>
-          <Button onClick={addForm}>Products</Button>
+        <Badge content={productsCount}>
+          <Button onClick={detailsForm}>Products</Button>
         </Badge>
       </CardFooter>
       <Modal title={customProps.title} isOpen={customProps.isOpen}>

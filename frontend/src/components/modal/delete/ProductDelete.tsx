@@ -107,7 +107,7 @@ export const ProductDelete = ({ setProps }: ModalProps) => {
           onClick={handleDelete}
           disabled={disabled}
         >
-          Save
+          Accept
         </Button>
       </div>
     </div>

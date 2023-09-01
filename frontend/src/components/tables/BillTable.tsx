@@ -45,13 +45,13 @@ export default function BillTable({ products }: BillProps) {
 
   function addForm() {
     setFormType("PRODUCT_FORM");
-    openModal({ setProps });
     setProps((state) => ({
       ...state,
       title: "Add product",
-      isOpen: true,
       disabled: false,
     }));
+
+    openModal({ setProps });
   }
 
   function editForm(item: IProduct) {
@@ -61,7 +61,6 @@ export default function BillTable({ products }: BillProps) {
     setProps((state) => ({
       ...state,
       title: "Edit product",
-      isOpen: true,
       disabled: false,
     }));
 
@@ -75,7 +74,6 @@ export default function BillTable({ products }: BillProps) {
     setProps((state) => ({
       ...state,
       title: "Delete product",
-      isOpen: true,
       disabled: false,
     }));
 
@@ -121,7 +119,7 @@ export default function BillTable({ products }: BillProps) {
           </tr>
         </thead>
         <tbody>
-          {!!products ? (
+          {!!products && products?.length > 0 ? (
             products.map((row, index: number) => {
               const isLast = index === products.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";

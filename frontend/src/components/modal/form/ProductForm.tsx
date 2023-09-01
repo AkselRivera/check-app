@@ -7,11 +7,10 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { postProduct } from "../../../api/products/postProducts";
 import { App_QueryCache } from "../../../constants/QueryCache";
-import { getFamilies } from "../../../api/family/getFamily";
+import { IFamily, getFamilies } from "../../../api/family/getFamily";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducer/store";
 import { cleanProduct } from "../../../reducer/ui";
-import { Family } from "../../../types/types";
 import { patchProduct } from "../../../api/products/patchProducts";
 
 type Inputs = {
@@ -176,10 +175,10 @@ export const ProductForm = ({ setProps }: ModalProps) => {
                 className: "text-gray-50 h-28 bg-custom border-0 ",
               }}
             >
-              {!familiesData?.data ? (
+              {!familiesData ? (
                 <Option disabled>No data</Option>
               ) : (
-                familiesData?.data?.map((item: Family) => (
+                familiesData?.map((item: IFamily) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
                   </Option>

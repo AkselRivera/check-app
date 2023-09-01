@@ -28,6 +28,7 @@ func main() {
 	app.Use(cors.New())
 
 	// TODO: GET Statics here
+	app.Static("/", "./dist")
 	// app.Get("/", routes.TestFunc)
 
 	api := app.Group("/api/v1")

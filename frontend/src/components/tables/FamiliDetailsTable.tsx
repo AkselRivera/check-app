@@ -88,26 +88,24 @@ export default function FamilyDetailsTable() {
   });
 
   function addForm() {
-    openModal({ setProps });
     setProps((state) => ({
       ...state,
       title: "Add order",
-      isOpen: true,
       disabled: false,
     }));
+
+    openModal({ setProps });
   }
 
-  function editForm(item: any) {
+  function editForm() {
     //TODO: Hacer el tipo que recibe este metodo
 
     setProps((state) => ({
       ...state,
       title: "Edit order",
-      isOpen: true,
       disabled: false,
     }));
 
-    console.log(item);
     openModal({ setProps });
   }
 
@@ -180,7 +178,7 @@ export default function FamilyDetailsTable() {
                   </Typography>
                 </td>
                 <td className={classes}>
-                  <Button onClick={() => editForm(row)} variant="text">
+                  <Button onClick={() => editForm()} variant="text">
                     Edit
                   </Button>
                 </td>

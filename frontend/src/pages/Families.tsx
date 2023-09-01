@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import CustomCard from "../components/share/CustomCard";
 import gopherData from "../assets/gopher-data.svg";
 import Modal from "../components/share/Modal";
-import { getFamilies } from "../api/family/getFamily";
+import { IFamily, getFamilies } from "../api/family/getFamily";
 
 import { useQuery } from "@tanstack/react-query";
 import { App_QueryCache } from "../constants/QueryCache";
@@ -45,41 +45,38 @@ export const Families = () => {
   } = useQuery({
     queryKey: [App_QueryCache.FAMILY],
     queryFn: getFamilies,
+    retry: false,
   });
 
   useEffect(() => {
-    if (!!data?.data) {
+    if (!!data) {
       setTotal(0);
       setTotalWTip(0);
-      data?.data.forEach((item: any) =>
-        setTotal((state) => state + item.total)
-      );
-      data?.data.forEach((item: any) =>
-        setTotalWTip((state) => state + item.total)
-      );
+      data?.forEach((item: any) => setTotal((state) => state + item.total));
+      data?.forEach((item: any) => setTotalWTip((state) => state + item.total));
     }
-  }, [data?.data]);
+  }, [data]);
 
   function addForm() {
+    setFormType(FORM_TYPES.FAMILY_FORM);
     setProps((state) => ({
       ...state,
       title: "Add a new Family",
-      isOpen: true,
       disabled: false,
     }));
+
     openModal({ setProps });
-    setFormType(FORM_TYPES.FAMILY_FORM);
   }
 
   function tipForm() {
+    setFormType(FORM_TYPES.TIP_FORM);
     setProps((state) => ({
       ...state,
       title: "Tip details",
-      isOpen: true,
       disabled: false,
     }));
+
     openModal({ setProps });
-    setFormType(FORM_TYPES.TIP_FORM);
   }
 
   return (
@@ -123,24 +120,24 @@ export const Families = () => {
         <div className="text-center">
           <Typography variant="h5">Total:</Typography>
           <Typography className="text-base md:text-lg font-semibold">
-            $ {total}
+            $ {total.toFixed(2)}
           </Typography>
         </div>
         <div className="text-center">
           <Typography variant="h5">Total with tip:</Typography>
           <Typography className="text-base md:text-lg font-semibold">
-            $ {totalWTip * ((100 + tip) / 100)}
+            $ {(totalWTip * ((100 + tip) / 100)).toFixed(2)}
           </Typography>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 justify-center overflow-auto  px-2 ">
-        {data?.data?.map((item: any) => (
+        {data?.map((item: IFamily) => (
           <CustomCard
             key={item.id}
             id={item.id}
             name={item.name}
             total={item.total}
-            products_count={item.products_count}
+            productsCount={item.productsCount}
             tip={(100 + tip) / 100}
           />
         ))}

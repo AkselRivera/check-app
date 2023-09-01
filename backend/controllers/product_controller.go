@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var productCollection *mongo.Collection = config.GetCollection(config.DB, "products")
@@ -72,6 +74,27 @@ func CreateProduct(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
+	var familyExist models.Family
+	id, _ := primitive.ObjectIDFromHex(product.Family_id)
+
+	opts := options.FindOneAndUpdate().SetUpsert(true)
+	filter := bson.M{
+		"_id": id,
+	}
+
+	update := bson.M{
+		"$inc": bson.D{
+			{Key: "total", Value: product.Total},
+			{Key: "products_count", Value: product.Quantity},
+		},
+	}
+
+	familyCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&familyExist)
+
+	if familyExist.Id.IsZero() {
+		return c.Status(http.StatusConflict).JSON(responses.ErrorResponse{Status: http.StatusConflict, Message: "error", Data: &fiber.Map{"data": "Family not found in DB."}})
+	}
+
 	return c.Status(http.StatusCreated).JSON(newProduct)
 }
 
@@ -90,19 +113,37 @@ func UpdateProduct(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(responses.ErrorResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
+	family_id, _ := primitive.ObjectIDFromHex(product.Family_id)
+	familyFilter := bson.M{
+		"_id": family_id,
+	}
+
+	// First we check if the [family_id] exist
+	if resp := familyCollection.FindOne(context.TODO(), familyFilter); resp.Err() != nil {
+
+		if resp.Err() == mongo.ErrNoDocuments {
+			custom_msg := fmt.Sprintf("Family not found with ID %v", family_id)
+			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": custom_msg}})
+		}
+
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": resp.Err().Error()}})
+	}
+
 	id, _ := primitive.ObjectIDFromHex(productID)
 	filter := bson.M{
 		"_id": id,
 	}
 
-	// First we check if the _id exist
-	if resp := productCollection.FindOne(context.TODO(), filter); resp.Err() != nil {
+	var oldProduct models.Product
+	oldErr := productCollection.FindOne(context.TODO(), filter).Decode(&oldProduct)
 
-		if resp.Err() == mongo.ErrNoDocuments {
-			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "Product ID not found."}})
+	if oldErr != nil {
+		if oldErr == mongo.ErrNoDocuments {
+			custom_msg := fmt.Sprintf("Product not found with ID %v", id)
+			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": custom_msg}})
+
 		}
-
-		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": resp.Err().Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": oldErr.Error()}})
 	}
 
 	update := bson.D{{Key: "$set", Value: bson.M{
@@ -114,25 +155,55 @@ func UpdateProduct(c *fiber.Ctx) error {
 	}}}
 
 	// We update the DB collection
-	res, err := productCollection.UpdateOne(context.TODO(), filter, update)
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
-	}
-
-	// We check if the modified is equal to 0, it means nothing was modified
-	if res.ModifiedCount == 0 {
-		return c.Status(http.StatusNotModified).JSON(responses.ErrorResponse{Status: http.StatusNotModified, Message: "error", Data: &fiber.Map{"data": "Content not modified"}})
-	}
-
-	// We find the the modified document to return it
 	var updatedData models.Product
-	err = productCollection.FindOne(context.TODO(), filter).Decode(&updatedData)
+	opts := options.FindOneAndUpdate().SetUpsert(true)
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	productCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updatedData)
+
+	if updatedData.Id.IsZero() {
+		custom_msg := fmt.Sprintf("Product with ID %v not found", id)
+		return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": custom_msg}})
+	}
+
+	var quantityDiff int
+	var totalDiff float64
+
+	//* If its the same family _id we increment or decrement @Quantity and @Total.
+	if product.Family_id == oldProduct.Family_id {
+		quantityDiff = product.Quantity - oldProduct.Quantity
+		totalDiff = product.Total - oldProduct.Total
+
+	} else {
+		/* If it isnt the same family_id we drecremt @Quantity and @Total to the previous family_id
+		and we added to the new family_id. */
+
+		oldFamily_id, _ := primitive.ObjectIDFromHex(oldProduct.Family_id)
+		quantityDiff = product.Quantity
+		totalDiff = product.Total
+
+		family_update := bson.M{
+			"$inc": bson.D{
+				{Key: "products_count", Value: (quantityDiff * -1)},
+				{Key: "total", Value: (totalDiff * -1)},
+			},
 		}
-		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+
+		_, errFam := familyCollection.UpdateOne(context.TODO(), bson.M{"_id": oldFamily_id}, family_update)
+		if errFam != nil {
+			return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": errFam.Error()}})
+		}
+	}
+
+	family_update := bson.M{
+		"$inc": bson.D{
+			{Key: "products_count", Value: quantityDiff},
+			{Key: "total", Value: totalDiff},
+		},
+	}
+
+	_, errFam := familyCollection.UpdateOne(context.TODO(), bson.M{"_id": family_id}, family_update)
+	if errFam != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": errFam.Error()}})
 	}
 
 	return c.Status(http.StatusCreated).JSON(updatedData)
@@ -150,13 +221,31 @@ func DeleteProduct(c *fiber.Ctx) error {
 	}
 
 	// First we check if the _id exist
-	if resp := productCollection.FindOne(context.TODO(), filter); resp.Err() != nil {
+	var oldProduct models.Product
+	oldErr := productCollection.FindOne(context.TODO(), filter).Decode(&oldProduct)
 
-		if resp.Err() == mongo.ErrNoDocuments {
-			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "Product ID not found."}})
+	if oldErr != nil {
+		if oldErr == mongo.ErrNoDocuments {
+			return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": oldErr.Error()}})
 		}
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": oldErr.Error()}})
+	}
 
-		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": resp.Err().Error()}})
+	quantityDiff := oldProduct.Quantity * -1
+	totalDiff := oldProduct.Total * -1
+
+	family_id, _ := primitive.ObjectIDFromHex(oldProduct.Family_id)
+
+	family_update := bson.M{
+		"$inc": bson.D{
+			{Key: "products_count", Value: quantityDiff},
+			{Key: "total", Value: totalDiff},
+		},
+	}
+
+	_, errFam := familyCollection.UpdateOne(context.TODO(), bson.M{"_id": family_id}, family_update)
+	if errFam != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": errFam.Error()}})
 	}
 
 	resp, err := productCollection.DeleteOne(context.TODO(), filter)
@@ -166,7 +255,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 	}
 
 	if resp.DeletedCount == 0 {
-		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": "Something went wrong try it later."}})
+		return c.Status(http.StatusNotFound).JSON(responses.ErrorResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": oldErr.Error()}})
 	}
 	return c.Status(http.StatusNoContent).JSON("Product deleted successfully")
 }

@@ -8,7 +8,7 @@ import (
 func FamilyRoutes(router fiber.Router) {
 	router.Get("/", controllers.GetFamily)
 	router.Post("/", controllers.CreateFamily)
-	router.Patch("/:id", controllers.UpdateProduct)
-	router.Delete("/:id", controllers.DeleteProduct)
+	router.Patch("/:id", controllers.UpdateFamily)
+	router.Delete("/:id", controllers.DeleteFamily)
 
 }
