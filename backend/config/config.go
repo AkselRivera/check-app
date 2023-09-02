@@ -25,3 +25,12 @@ func EnvPort() string {
 
 	return os.Getenv("PORT")
 }
+
+func GetPassword() string {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	return os.Getenv("RESET_PASSWORD")
+}

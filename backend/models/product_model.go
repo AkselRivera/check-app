@@ -11,4 +11,5 @@ type Product struct {
 	Family_id string             `json:"family_id,omitempty" validate:"required" `
 	UnitPrice float64            `json:"unitPrice,omitempty" validate:"required" `
 	Total     float64            `json:"total,omitempty" validate:"required" `
+	Family    Family             `json:"family"`
 }

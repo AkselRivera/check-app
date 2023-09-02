@@ -131,6 +131,10 @@ func DeleteFamily(c *fiber.Ctx) error {
 
 	familyID := c.Params("id")
 
+	if familyID == "64e845ded3b4babed2b85043" {
+		return c.Status(http.StatusConflict).JSON(responses.ErrorResponse{Status: http.StatusConflict, Message: "error", Data: &fiber.Map{"data": "The default family cannot be deleted"}})
+	}
+
 	id, _ := primitive.ObjectIDFromHex(familyID)
 	filter := bson.M{
 		"_id": id,

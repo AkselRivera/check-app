@@ -13,34 +13,59 @@ import {
   UserCircleIcon,
   ChevronDownIcon,
   PowerIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-
-const profileMenuItems = [
-  {
-    label: "My Profile",
-    icon: UserCircleIcon,
-  },
-  // {
-  //   label: "Edit Profile",
-  //   icon: Cog6ToothIcon,
-  // },
-  // {
-  //   label: "Inbox",
-  //   icon: InboxArrowDownIcon,
-  // },
-  // {
-  //   label: "Help",
-  //   icon: LifebuoyIcon,
-  // },
-  {
-    label: "Sign Out",
-    icon: PowerIcon,
-  },
-];
+import { openModal } from "../../utils/modal";
+import Modal from "../share/Modal";
+import { ResetServer } from "../modal/delete/ResetServer";
 
 export default function ProfileMenu() {
+  const [props, setProps] = useState({
+    title: "",
+    isOpen: false,
+  });
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const profileMenuItems = [
+    {
+      label: "My Profile",
+      icon: UserCircleIcon,
+      func: () => {
+        alert(`1`);
+      },
+    },
+    {
+      label: "Reset DB",
+      icon: Cog6ToothIcon,
+      func: () => {
+        setProps((state) => ({
+          ...state,
+          title: "Reset Server DB",
+          disabled: false,
+        }));
+
+        openModal({ setProps });
+        closeMenu();
+      },
+    },
+    // {
+    //   label: "Inbox",
+    //   icon: InboxArrowDownIcon,
+    // },
+    // {
+    //   label: "Help",
+    //   icon: LifebuoyIcon,
+    // },
+    {
+      label: "Sign Out",
+      icon: PowerIcon,
+      func: () => {
+        alert(`1`);
+      },
+    },
+  ];
 
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -69,12 +94,15 @@ export default function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1 bg-gray-800 border-0 shadow-xl">
-        {profileMenuItems.map(({ label, icon }, key) => {
+        {profileMenuItems.map(({ label, icon, func }, key) => {
           const isLastItem = key === profileMenuItems.length - 1;
           return (
             <MenuItem
               key={label}
-              onClick={closeMenu}
+              onClick={() => {
+                func();
+                closeMenu();
+              }}
               className={`flex items-center gap-2 rounded   ${
                 isLastItem
                   ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
@@ -99,6 +127,9 @@ export default function ProfileMenu() {
           );
         })}
       </MenuList>
+      <Modal title={props.title} isOpen={props.isOpen}>
+        <ResetServer setProps={setProps} />
+      </Modal>
     </Menu>
   );
 }

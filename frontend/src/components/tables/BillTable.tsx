@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { selectProduct } from "../../reducer/ui";
 import { IProduct } from "../../api/products/getProducts";
 import { ProductDelete } from "../modal/delete/ProductDelete";
+import NoData from "../share/NoData";
 
 interface ButtonHeader {
   title: string;
@@ -20,13 +21,13 @@ const FORM_TYPES = {
 } as const;
 
 const TABLE_HEAD = [
-  "Check",
+  { title: "Add" },
   "Name",
   "Family",
   "Quantity",
   "Unit Price",
   "Total",
-  { title: "Add" },
+  "Actions",
 ];
 
 type BillProps = {
@@ -123,7 +124,7 @@ export default function BillTable({ products }: BillProps) {
             products.map((row, index: number) => {
               const isLast = index === products.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-              const { id, name, familyId, unitPrice, quantity, total } = row;
+              const { id, name, family, unitPrice, quantity, total } = row;
               return (
                 <tr key={id}>
                   <td className={classes}>
@@ -136,7 +137,7 @@ export default function BillTable({ products }: BillProps) {
                   </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
-                      {familyId}
+                      {family?.name || <NoData />}
                     </Typography>
                   </td>
                   <td className={classes}>

@@ -29,14 +29,42 @@ func GetProducts(c *fiber.Ctx) error {
 	// objId, _ := primitive.ObjectIDFromHex(userId)
 
 	// err := productCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
-	data, err := productCollection.Find(context.TODO(), bson.D{})
+	// data, err := productCollection.Find(context.TODO(), bson.D{})
+	// if err != nil {
+	// 	return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	// }
+
+	pipeline := []bson.M{
+		{
+			"$addFields": bson.M{
+				"family_id": bson.M{
+					"$toObjectId": "$family_id",
+				},
+			},
+		},
+		{
+			"$lookup": bson.M{
+				"from":         "family",
+				"localField":   "family_id",
+				"foreignField": "_id",
+				"as":           "family",
+			},
+		},
+		{
+			"$unwind": bson.M{
+				"path":                       "$family",
+				"preserveNullAndEmptyArrays": true,
+			},
+		},
+	}
+
+	data, err := productCollection.Aggregate(context.TODO(), pipeline)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	var products []models.Product
-
-	if err := data.All(context.Background(), &products); err != nil {
+	if err := data.All(context.TODO(), &products); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 

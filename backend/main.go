@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/AkselRivera/check-app/config"
+	"github.com/AkselRivera/check-app/controllers"
 	"github.com/AkselRivera/check-app/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -32,18 +33,14 @@ func main() {
 	// app.Get("/", routes.TestFunc)
 
 	api := app.Group("/api/v1")
+
 	apiProduct := api.Group("/product")
 	apiFamily := api.Group("/family")
 
 	routes.ProductRoutes(apiProduct)
 	routes.FamilyRoutes(apiFamily)
 
-	// api.Post("/family", routes.NewFamily)
-	// api.Get("/families", routes.GetFamilies)
-	// api.Delete("/family/:id", routes.DeleteFamily)
-
-	// api.Get("/mongo", service.GetProducts)
-	// api.Post("/mongo", service.CreateProduct)
+	api.Post("/reset", controllers.ResetServer)
 
 	app.Listen(":" + port)
 }

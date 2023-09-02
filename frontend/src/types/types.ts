@@ -1,3 +1,5 @@
+import { IFamily } from "../api/family/getFamily";
+
 export type ProductResponse = {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export type ProductResponse = {
   unitPrice: number;
   family_id: string;
   total: number;
+  family ?: IFamily
 };
 
 export type FamilyResponse = {
