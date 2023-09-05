@@ -83,6 +83,12 @@ export const ProductForm = ({ setProps }: ModalProps) => {
             client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
             handleModal();
           },
+          onError: (msg) => {
+            alert(msg);
+          },
+          onSettled: () => {
+            setDisable(false);
+          },
         }
       );
     } else {
@@ -96,6 +102,12 @@ export const ProductForm = ({ setProps }: ModalProps) => {
             client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
             client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
             handleModal();
+          },
+          onError: (msg) => {
+            alert(msg);
+          },
+          onSettled: () => {
+            setDisable(false);
           },
         }
       );

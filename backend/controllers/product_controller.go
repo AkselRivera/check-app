@@ -76,7 +76,7 @@ func CreateProduct(c *fiber.Ctx) error {
 	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	// userId := c.Params("userId")
 
-	var product models.Product
+	var product models.ProductBody
 	defer cancel()
 	//Validate the request body
 	if err := c.BodyParser(&product); err != nil {
@@ -131,7 +131,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	defer cancel()
 
 	productID := c.Params("id")
-	var product models.Product
+	var product models.ProductBody
 
 	if err := c.BodyParser(&product); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responses.ErrorResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
