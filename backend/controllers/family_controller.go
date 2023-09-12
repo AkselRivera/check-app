@@ -30,7 +30,9 @@ func GetFamily(c *fiber.Ctx) error {
 	// objId, _ := primitive.ObjectIDFromHex(userId)
 
 	// err := productCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
-	data, err := familyCollection.Find(context.TODO(), bson.M{})
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "name", Value: 1}})
+	data, err := familyCollection.Find(context.TODO(), bson.M{}, findOptions)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}

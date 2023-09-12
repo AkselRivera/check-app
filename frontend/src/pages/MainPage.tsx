@@ -1,6 +1,6 @@
-import CustomNav from '../components/Navbar'
-import { Bill } from './Bill'
-import { Families } from './Families'
+import CustomNav from "../components/Navbar";
+import { Bill } from "./Bill";
+import { Families } from "./Families";
 
 export const MainPage = () => {
   return (
@@ -12,5 +12,5 @@ export const MainPage = () => {
         <Families />
       </div>
     </div>
-  )
-}
+  );
+};

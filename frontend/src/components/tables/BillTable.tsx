@@ -1,5 +1,5 @@
 import { ProductForm } from "../modal/form/ProductForm";
-import { Button, Checkbox, Typography } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { openModal } from "../../utils/modal";
 import { useState } from "react";
 
@@ -21,7 +21,6 @@ const FORM_TYPES = {
 } as const;
 
 const TABLE_HEAD = [
-  { title: "Add" },
   "Name",
   "Family",
   "Quantity",
@@ -127,9 +126,6 @@ export default function BillTable({ products }: BillProps) {
               const { id, name, family, unitPrice, quantity, total } = row;
               return (
                 <tr key={id}>
-                  <td className={classes}>
-                    <Checkbox />
-                  </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
                       {name}

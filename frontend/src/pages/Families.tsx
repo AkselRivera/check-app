@@ -116,16 +116,16 @@ export const Families = () => {
         </div>
         <img src={gopherData} className="logo w-1/4 p-2 " alt="Gopher Bill" />
       </div>
-      <div className="p-6 justify-evenly flex">
+      <div className="p-4 justify-evenly flex">
         <div className="text-center">
           <Typography variant="h5">Total:</Typography>
-          <Typography className="text-base md:text-lg font-semibold">
+          <Typography className="text-sm md:text-lg font-semibold">
             $ {total.toFixed(2)}
           </Typography>
         </div>
         <div className="text-center">
           <Typography variant="h5">Total with tip:</Typography>
-          <Typography className="text-base md:text-lg font-semibold">
+          <Typography className="text-sm md:text-lg font-semibold">
             $ {(totalWTip * ((100 + tip) / 100)).toFixed(2)}
           </Typography>
         </div>
