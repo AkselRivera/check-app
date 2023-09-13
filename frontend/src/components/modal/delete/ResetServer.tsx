@@ -9,6 +9,8 @@ import { App_QueryCache } from "../../../constants/QueryCache";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { resetServer } from "../../../api/default/postDefault";
 
+import { toast } from "react-toastify";
+
 export const ResetServer = ({ setProps }: ModalProps) => {
   const [disabled, setDisabled] = useState(false);
 
@@ -37,6 +39,9 @@ export const ResetServer = ({ setProps }: ModalProps) => {
         client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
         client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
         handleModal();
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.data?.data);
       },
       onSettled: () => {
         setDisabled(false);

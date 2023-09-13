@@ -72,6 +72,63 @@ func GetProducts(c *fiber.Ctx) error {
 	// return c.Status(http.StatusOK).JSON(responses.ProductRespone{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
 }
 
+func GetProductsByFamily(c *fiber.Ctx) error {
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	family_id := c.Params("family_id")
+	// var product models.Product
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(family_id)
+
+	// err := productCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	// data, err := productCollection.Find(context.TODO(), bson.D{})
+	// if err != nil {
+	// 	return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	// }
+
+	pipeline := []bson.M{
+		{
+			"$addFields": bson.M{
+				"family_id": bson.M{
+					"$toObjectId": "$family_id",
+				},
+			},
+		},
+		{
+			"$match": bson.M{
+				"family_id": objId,
+			},
+		},
+		{
+			"$lookup": bson.M{
+				"from":         "family",
+				"localField":   "family_id",
+				"foreignField": "_id",
+				"as":           "family",
+			},
+		},
+		{
+			"$unwind": bson.M{
+				"path":                       "$family",
+				"preserveNullAndEmptyArrays": true,
+			},
+		},
+	}
+
+	data, err := productCollection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	var products []models.Product
+	if err := data.All(context.TODO(), &products); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.ErrorResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	return c.Status(http.StatusOK).JSON(products)
+	// return c.Status(http.StatusOK).JSON(responses.ProductRespone{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
+}
+
 func CreateProduct(c *fiber.Ctx) error {
 	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	// userId := c.Params("userId")

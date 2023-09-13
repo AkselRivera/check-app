@@ -10,6 +10,8 @@ import { cleanFamily } from "../../../reducer/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducer/store";
 import { App_QueryCache } from "../../../constants/QueryCache";
+import { App_MESSAGES } from "../../../constants/Messages";
+import { toast } from "react-toastify";
 
 export const FamilyDelete = ({ setProps }: ModalProps) => {
   const { selectedFamily } = useSelector((state: RootState) => state.ui);
@@ -29,6 +31,7 @@ export const FamilyDelete = ({ setProps }: ModalProps) => {
       deleteMutation.mutate(selectedFamily.id, {
         onSuccess: () => {
           setDisabled(false);
+          toast.success(App_MESSAGES.PRODUCT.DELETE);
           client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
           client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
           client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
@@ -36,7 +39,7 @@ export const FamilyDelete = ({ setProps }: ModalProps) => {
           handleModal();
         },
       });
-    else alert("An error ocurred please try it again");
+    else toast.error(App_MESSAGES.DEFAULT.DISCONNECTED);
   }
 
   function handleModal() {
@@ -47,7 +50,7 @@ export const FamilyDelete = ({ setProps }: ModalProps) => {
   return (
     <div className="max-h-[70vh] ">
       <div className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto px-4 ">
-        <div className="hidden  md:inline md:w-1/2 border h-96">
+        <div className="hidden  md:inline md:w-1/2  h-96">
           {/* <Lord-icon
     src="https://cdn.lordicon.com/eeisfrmc.json"
     trigger="hover"
@@ -55,7 +58,7 @@ export const FamilyDelete = ({ setProps }: ModalProps) => {
     style="width:250px;height:250px">
 </Lord-icon> */}
         </div>
-        <div className="w-full md:w-1/2 flex flex-col justify-evenly border h-96 text-center  group">
+        <div className="w-full md:w-1/2 flex flex-col justify-evenly h-96 text-center  group">
           <span className="m-2 text-center text-lg font-semibold">
             Are you sure you want to delete{" "}
             <span className="capitalize group-hover:text-red-600 ease-in-out duration-300">

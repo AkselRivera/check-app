@@ -1,4 +1,5 @@
 import axios from "axios";
+import { App_MESSAGES } from "../../constants/Messages";
 
 type Body = {
   password: string;
@@ -11,6 +12,6 @@ export function resetServer(body: Body) {
       body
     );
   } catch (error) {
-    throw error;
+    throw App_MESSAGES.DEFAULT.DISCONNECTED;
   }
 }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { App_MESSAGES } from "../../constants/Messages";
 
 type ProductBody = {
   name: string;
@@ -15,6 +16,7 @@ export function postProduct(newProduct: ProductBody) {
       newProduct
     );
   } catch (error) {
-    throw error;
+    throw App_MESSAGES.DEFAULT.DISCONNECTED;
+
   }
 }

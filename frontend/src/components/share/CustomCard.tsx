@@ -33,15 +33,16 @@ export default function CustomCard(props: any) {
   const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
 
   function detailsForm() {
-    // setFormType(FORM_TYPES.FAMILY_FORM);
+    setFormType(FORM_TYPES.FAMILY_FORM);
+    dispatch(selectFamily(props));
     setProps((state) => ({
       ...state,
-      title: "Family details",
+      title: `Family details ${props?.name}`,
       disabled: false,
     }));
 
-    // openModal({ setProps });
-    alert("Almost complete!!");
+    openModal({ setProps });
+    // alert("Almost complete!!");
   }
 
   function deleteForm() {

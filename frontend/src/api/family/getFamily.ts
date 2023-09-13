@@ -1,5 +1,6 @@
 import axios from "axios";
 import { FamilyResponse } from "../../types/types";
+import { App_MESSAGES } from "../../constants/Messages";
 
 export interface IFamily {
   id: string;
@@ -40,6 +41,7 @@ export async function getFamilies(): Promise<Family[] | null>{
 
     return Families;
   } catch (error) {
-    return null;
+    throw App_MESSAGES.DEFAULT.DISCONNECTED;
+
   }
 }

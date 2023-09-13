@@ -5,6 +5,9 @@ import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { store } from "./reducer/store";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +25,7 @@ function App() {
           <MainPage />
         </div>
       </QueryClientProvider>
+      <ToastContainer theme="colored" />
     </Provider>
   );
 }

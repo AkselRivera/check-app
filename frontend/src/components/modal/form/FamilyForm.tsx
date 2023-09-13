@@ -5,6 +5,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postFamily } from "../../../api/family/postFamily";
 import { App_QueryCache } from "../../../constants/QueryCache";
+import { App_MESSAGES } from "../../../constants/Messages";
+import { toast } from "react-toastify";
 
 type Inputs = {
   name: string;
@@ -25,9 +27,9 @@ export const FamilyForm = ({ setProps }: ModalProps) => {
   const client = useQueryClient();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log("Submitado", data);
     postMutation.mutate(data, {
       onSuccess: () => {
+        toast.success(App_MESSAGES.FAMILY.CREATE);
         client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
         client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
         reset();

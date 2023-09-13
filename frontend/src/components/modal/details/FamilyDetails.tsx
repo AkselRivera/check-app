@@ -7,7 +7,7 @@ import FamilyDetailsTable from "../../tables/FamiliDetailsTable";
 export const FamilyDetails = ({ setProps }: ModalProps) => {
   return (
     <div className="max-h-[70vh] ">
-      <div className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto px-4 ">
+      <div className="mb-4 flex flex-wrap py-4 -mx-2 w-full justify-center overflow-auto  ">
         <FamilyDetailsTable />
       </div>
 

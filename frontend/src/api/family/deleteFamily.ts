@@ -1,4 +1,5 @@
 import axios from "axios";
+import { App_MESSAGES } from "../../constants/Messages";
 
 export function deleteFamily(familyID: string) {
   try {
@@ -6,6 +7,6 @@ export function deleteFamily(familyID: string) {
       `${import.meta.env.VITE_BACKEND_URL}/api/v1/family/${familyID}`
     );
   } catch (error) {
-    throw error;
+    throw App_MESSAGES.DEFAULT.DISCONNECTED;
   }
 }

@@ -7,6 +7,7 @@ import (
 
 func ProductRoutes(router fiber.Router) {
 	router.Get("/", controllers.GetProducts)
+	router.Get("/family/:family_id", controllers.GetProductsByFamily)
 	router.Post("/", controllers.CreateProduct)
 	router.Patch("/:id", controllers.UpdateProduct)
 	router.Delete("/:id", controllers.DeleteProduct)

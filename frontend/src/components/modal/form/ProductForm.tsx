@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducer/store";
 import { cleanProduct } from "../../../reducer/ui";
 import { patchProduct } from "../../../api/products/patchProducts";
+import { toast } from "react-toastify";
+import { App_MESSAGES } from "../../../constants/Messages";
 
 type Inputs = {
   name: string;
@@ -22,7 +24,9 @@ type Inputs = {
 };
 
 export const ProductForm = ({ setProps }: ModalProps) => {
-  const { selectedProduct } = useSelector((state: RootState) => state.ui);
+  const { selectedProduct, selectedFamily } = useSelector(
+    (state: RootState) => state.ui
+  );
 
   const dispatch = useDispatch();
   const [disable, setDisable] = useState(false);
@@ -76,15 +80,30 @@ export const ProductForm = ({ setProps }: ModalProps) => {
         { ...data, total },
         {
           onSuccess: () => {
+            toast.success(App_MESSAGES.PRODUCT.UPDATE);
             setDisable(false);
             client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
             client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
             client.invalidateQueries({ queryKey: [App_QueryCache.FAMILY] });
             client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
+
+            if (!!selectedFamily?.id) {
+              client.invalidateQueries({
+                queryKey: [
+                  App_QueryCache.PRODUCT_BY_FAMILY + selectedFamily.id,
+                ],
+              });
+              client.refetchQueries({
+                queryKey: [
+                  App_QueryCache.PRODUCT_BY_FAMILY + selectedFamily.id,
+                ],
+              });
+            }
+
             handleModal();
           },
-          onError: (msg) => {
-            alert(msg);
+          onError: () => {
+            toast.error(App_MESSAGES.DEFAULT.DISCONNECTED);
           },
           onSettled: () => {
             setDisable(false);
@@ -96,6 +115,7 @@ export const ProductForm = ({ setProps }: ModalProps) => {
         { ...data, total },
         {
           onSuccess: () => {
+            toast.success(App_MESSAGES.PRODUCT.CREATE);
             setDisable(false);
             client.invalidateQueries({ queryKey: [App_QueryCache.PRODUCT] });
             client.refetchQueries({ queryKey: [App_QueryCache.PRODUCT] });
@@ -103,8 +123,8 @@ export const ProductForm = ({ setProps }: ModalProps) => {
             client.refetchQueries({ queryKey: [App_QueryCache.FAMILY] });
             handleModal();
           },
-          onError: (msg) => {
-            alert(msg);
+          onError: () => {
+            toast.error(App_MESSAGES.DEFAULT.DISCONNECTED);
           },
           onSettled: () => {
             setDisable(false);

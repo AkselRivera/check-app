@@ -1,58 +1,44 @@
 import { ProductForm } from "../modal/form/ProductForm";
-import { Button, Typography } from "@material-tailwind/react";
-import { openModal } from "../../utils/modal";
+import { Button, Spinner, Typography } from "@material-tailwind/react";
 import { useState } from "react";
 
 import Modal from "../share/Modal";
 import { DefaultColumn } from "../share/table/DefaultColumn";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectProduct } from "../../reducer/ui";
-import { IProduct } from "../../api/products/getProducts";
+import { IProduct, getProductsByFamily } from "../../api/products/getProducts";
 import { ProductDelete } from "../modal/delete/ProductDelete";
-import NoData from "../share/NoData";
-
-interface ButtonHeader {
-  title: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { App_QueryCache } from "../../constants/QueryCache";
+import { RootState } from "../../reducer/store";
+import { openModal } from "../../utils/modal";
 
 const FORM_TYPES = {
   DELETE_FORM: "PORDUCT_DELETE",
   PRODUCT_FORM: "PRODUCT_FORM",
 } as const;
 
-const TABLE_HEAD = [
-  "Name",
-  "Family",
-  "Quantity",
-  "Unit Price",
-  "Total",
-  "Actions",
-];
+const TABLE_HEAD = ["Name", "Details", "Total", "Actions"];
 
-type BillProps = {
-  products: IProduct[] | null | undefined;
-};
-
-export default function FamilyDetailsTable({ products }: BillProps) {
+export default function FamilyDetailsTable() {
+  const { selectedFamily } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
+  const {
+    data: productData,
+    // refetch: refetchProduct,
+    isFetching,
+  } = useQuery({
+    queryKey: [App_QueryCache.PRODUCT_BY_FAMILY + selectedFamily?.id],
+    queryFn: () => getProductsByFamily(selectedFamily?.id),
+    retry: false,
+  });
+
+  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
   const [props, setProps] = useState({
     title: "",
     isOpen: false,
   });
-
-  const [formType, setFormType] = useState<keyof typeof FORM_TYPES | "">("");
-
-  function addForm() {
-    setFormType("PRODUCT_FORM");
-    setProps((state) => ({
-      ...state,
-      title: "Add product",
-      disabled: false,
-    }));
-
-    openModal({ setProps });
-  }
 
   function editForm(item: IProduct) {
     setFormType("PRODUCT_FORM");
@@ -80,12 +66,16 @@ export default function FamilyDetailsTable({ products }: BillProps) {
     openModal({ setProps });
   }
 
+  if (isFetching) {
+    return <Spinner />;
+  }
+
   return (
-    <div className="overflow-auto h-full w-full rounded-md max-h-[80%] bg-custom">
+    <div className="overflow-auto h-full w-full rounded-md max-h-[60vh] bg-custom">
       <table className="w-full min-w-max table-auto text-center bg-gradient-to-b from-gray-800 to-gray-900 text-blue-gray-50">
         <thead>
           <tr>
-            {TABLE_HEAD.map((head: string | ButtonHeader) => {
+            {TABLE_HEAD.map((head: string) => {
               if (typeof head == "string")
                 return (
                   <th
@@ -100,30 +90,15 @@ export default function FamilyDetailsTable({ products }: BillProps) {
                     </Typography>
                   </th>
                 );
-              else
-                return (
-                  <th
-                    key={new Date().toISOString()}
-                    className="border-b border-gray-800 bg-gray-900 p-4 sticky top-0 z-10"
-                  >
-                    <Button
-                      color="green"
-                      onClick={addForm}
-                      className="focus:ring-transparent focus-visible:ring-0 "
-                    >
-                      {head.title}
-                    </Button>
-                  </th>
-                );
             })}
           </tr>
         </thead>
         <tbody>
-          {!!products && products?.length > 0 ? (
-            products.map((row, index: number) => {
-              const isLast = index === products.length - 1;
+          {!!productData && productData?.length > 0 ? (
+            productData.map((row, index: number) => {
+              const isLast = index === productData.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-gray-800";
-              const { id, name, family, unitPrice, quantity, total } = row;
+              const { id, name, unitPrice, quantity, total } = row;
               return (
                 <tr key={id}>
                   <td className={classes}>
@@ -133,17 +108,7 @@ export default function FamilyDetailsTable({ products }: BillProps) {
                   </td>
                   <td className={classes}>
                     <Typography variant="small" className="font-normal">
-                      {family?.name || <NoData />}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography variant="small" className="font-normal">
-                      {quantity}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography variant="small" className="font-normal">
-                      $ {unitPrice.toFixed(2)}
+                      {`${quantity} x $ ${unitPrice.toFixed(2)}`}
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -167,7 +132,7 @@ export default function FamilyDetailsTable({ products }: BillProps) {
               );
             })
           ) : (
-            <DefaultColumn cols={6} />
+            <DefaultColumn cols={4} />
           )}
         </tbody>
       </table>
