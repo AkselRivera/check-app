@@ -72,14 +72,18 @@ export default function CustomCard(props: any) {
         <Typography variant="h5" className="mb-2">
           {name}
         </Typography>
-        <Typography className="font-semibold">Food intake:</Typography>
-        <Typography className="text-center" color="blue">
-          $ {total}
-        </Typography>
-        <Typography className="font-semibold "> Total with tip:</Typography>
-        <Typography className="text-center" color="green">
-          $ {(total * tip).toFixed(2)}
-        </Typography>
+        <div className="flex justify-between">
+          <Typography className="font-semibold">Food intake:</Typography>
+          <Typography className="text-center" color="blue">
+            $ {total}
+          </Typography>
+        </div>
+        <div className="flex justify-between">
+          <Typography className="font-semibold "> Total with tip:</Typography>
+          <Typography className="text-center" color="green">
+            $ {(total * tip).toFixed(2)}
+          </Typography>
+        </div>
       </CardBody>
       <CardFooter className="pt-0 text-center">
         <Badge content={productsCount}>
